@@ -1,0 +1,23 @@
+{
+  "name": "@blockware/codegen-target",
+  "version": "0.0.1",
+  "description": "SDK module for creating code generation targets",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blockwarecom/codegen-target.git"
+  },
+  "keywords": [
+    "blockware"
+  ],
+  "author": "Henrik Hofmeister <hh@blockware.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/blockwarecom/codegen-target/issues"
+  },
+  "homepage": "https://github.com/blockwarecom/codegen-target#readme",
+  "dependencies": {
+    "handlebars": "4.1.2",
+    "lodash": "4.17.11"
+  }
+}
