@@ -161,7 +161,9 @@ function create(context, codeFormatter) {
 
         _.forEach(items, function(item, key) {
             item['argumentName'] = key;
-            out.push(options.fn(item));
+            out.push(options.fn(item).trim()
+                .replace(/\n/gm, ' ')
+                .replace(/\s+/gm, ' '));
         });
 
         return codeFormatter.$arguments(out);

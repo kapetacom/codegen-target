@@ -73,16 +73,18 @@ class Target {
      * @param {string} sourceFile The template file name
      * @param {string} templateSource The template file content
      * @param {object} data The data from the YML definition
+     * @param {object} context The full YML document
      * @returns {string} the rendered code
      * @protected
      */
-    _render(templateEngine, sourceFile, templateSource, data) {
+    _render(templateEngine, sourceFile, templateSource, data, context) {
         try {
             const template = templateEngine.compile(templateSource);
 
             return template({
                 options: this.options,
-                data
+                data,
+                context
             });
         } catch(e) {
             throw new Error('Failed to compile source:' + sourceFile + '. ' + e.stack);
@@ -112,9 +114,10 @@ class Target {
      * does not write anything to disk.
      *
      * @param {object} data
+     * @param {object} context
      * @returns {{filename: string, content: string}[]}
      */
-    generate(data) {
+    generate(data, context) {
 
         const template = _.find(Target.TEMPLATES, (value, key) => {
             return key.toLowerCase() === data.kind.toLowerCase();
@@ -132,13 +135,13 @@ class Target {
 
         const templateFiles = walkDirectory(templateDir);
 
-        const templateEngine = this._createTemplateEngine(data);
+        const templateEngine = this._createTemplateEngine(data, context);
 
         return templateFiles.map((fileName) => {
             const templateSource = FS.readFileSync(fileName).toString();
 
             //We always clone data in case a target implementation wants to change it
-            const sourceCode = this._render(templateEngine, fileName, templateSource, _.cloneDeep(data));
+            const sourceCode = this._render(templateEngine, fileName, templateSource, _.cloneDeep(data), context);
 
             const filename = fileName.substr(templateDir.length + 1);
 
@@ -150,9 +153,15 @@ class Target {
         let mode = 'write-always';
         const lines = sourceCode.split(/\n/g).filter((line) => {
             if (line.indexOf('#FILENAME:') > -1) {
-                const parts = line.split(/#FILENAME:/);
-                filename = parts[1];
-                mode = parts[2] ? parts[2] : 'write-always';
+                filename = line.split(/#FILENAME:/)[1];
+                if (filename.indexOf(':') > -1) {
+                    [filename, mode] = filename.split(/:/);
+                }
+
+                if (!mode) {
+                    mode = 'write-always';
+                }
+
                 return false;
             }
 
