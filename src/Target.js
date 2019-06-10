@@ -147,9 +147,12 @@ class Target {
     }
 
     _parseCode(filename, sourceCode) {
+        let mode = 'write-always';
         const lines = sourceCode.split(/\n/g).filter((line) => {
             if (line.indexOf('#FILENAME:') > -1) {
-                filename = line.split(/#FILENAME:/)[1];
+                const parts = line.split(/#FILENAME:/);
+                filename = parts[1];
+                mode = parts[2] ? parts[2] : 'write-always';
                 return false;
             }
 
@@ -158,7 +161,8 @@ class Target {
 
         return {
             filename: filename,
-            content: this._postProcessCode(filename, lines.join('\n'))
+            content: this._postProcessCode(filename, lines.join('\n')),
+            mode
         };
     }
 

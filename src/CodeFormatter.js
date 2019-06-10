@@ -1,4 +1,12 @@
+
+
+
+
 class CodeFormatter {
+
+    _ucfirst(text) {
+        return text.substr(0,1).toUpperCase() + text.substr(1);
+    }
 
     $comment(value) {
         return value;
@@ -39,6 +47,24 @@ class CodeFormatter {
     }
 
     $string(value) {
+        return value;
+    }
+
+    $getter(typeName, propertyId) {
+        let prefix = 'get';
+        if (typeName.toLowerCase() === 'boolean') {
+            prefix = 'is';
+        }
+
+        return prefix + this._ucfirst(propertyId);
+    }
+
+    $setter(typeName, propertyId) {
+        let prefix = 'set';
+        return prefix + this._ucfirst(propertyId);
+    }
+
+    $setter(value) {
         return value;
     }
 

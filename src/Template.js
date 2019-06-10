@@ -148,6 +148,14 @@ function create(context, codeFormatter) {
         return new handlebarInstance.SafeString(codeFormatter.$returnType(typename));
     });
 
+    handlebarInstance.registerHelper('getter', function(typename, propertyId) {
+        return new handlebarInstance.SafeString(codeFormatter.$getter(typename, propertyId));
+    });
+
+    handlebarInstance.registerHelper('setter', function(typename, propertyId) {
+        return new handlebarInstance.SafeString(codeFormatter.$setter(typename, propertyId));
+    });
+
     handlebarInstance.registerHelper('arguments', function(items, options) {
         var out = [];
 
