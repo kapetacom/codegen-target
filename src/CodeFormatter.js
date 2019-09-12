@@ -32,7 +32,12 @@ class CodeFormatter {
         if (!value) {
             return value;
         }
-        return value.substr(0,1).toUpperCase() + value.substr(1);
+
+        if (value.$ref) {
+            value = value.$ref;
+        }
+
+        return this._ucfirst(value);
     }
 
     $constant(value) {
@@ -40,10 +45,7 @@ class CodeFormatter {
     }
 
     $variable(value) {
-        if (!value) {
-            return value;
-        }
-        return value.substr(0,1).toLowerCase() + value.substr(1);
+        return this.$type(value);
     }
 
     $string(value) {
