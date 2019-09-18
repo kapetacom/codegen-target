@@ -45,7 +45,9 @@ class CodeFormatter {
     }
 
     $variable(value) {
-        return this.$type(value);
+        const typeName = this.$type(value);
+
+        return typeName.substr(0,1).toLowerCase() + typeName.substr(1);
     }
 
     $string(value) {
