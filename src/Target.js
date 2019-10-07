@@ -151,11 +151,16 @@ class Target {
 
     _parseCode(filename, sourceCode) {
         let mode = 'write-always';
+        let permissions = '644';
         const lines = sourceCode.split(/\n/g).filter((line) => {
             if (line.indexOf('#FILENAME:') > -1) {
                 filename = line.split(/#FILENAME:/)[1];
                 if (filename.indexOf(':') > -1) {
-                    [filename, mode] = filename.split(/:/);
+                    [filename, mode, permissions] = filename.split(/:/g);
+                }
+
+                if (!permissions) {
+                    permissions = '644';
                 }
 
                 if (!mode) {
@@ -171,7 +176,8 @@ class Target {
         return {
             filename: filename,
             content: this._postProcessCode(filename, lines.join('\n')),
-            mode
+            mode,
+            permissions
         };
     }
 
