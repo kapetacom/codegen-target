@@ -119,9 +119,7 @@ class Target {
      */
     generate(data, context) {
 
-        const template = _.find(Target.TEMPLATES, (value, key) => {
-            return key.toLowerCase() === data.kind.toLowerCase();
-        });
+        const template = data.kind.toLowerCase();
 
         if (!template) {
             throw new Error('No template found for kind: ' + data.kind);
@@ -182,26 +180,6 @@ class Target {
     }
 
 }
-
-Target.TYPES = {
-    PROJECT_BLOCK_OPERATOR: 'project_block_operator',
-    PROJECT_BLOCK_SERVICE: 'project_block_service',
-    REST_CLIENT: 'rest_client',
-    REST_RESOURCE: 'rest_resource',
-    GRPC_CLIENT: 'grpc_client',
-    GRPC_RESOURCE: 'grpc_resource',
-    ENTITY: 'entity'
-};
-
-Target.TEMPLATES = {
-    'entity': Target.TYPES.ENTITY, //Built-in
-    'core.blockware.com/v1/Block/Operator': Target.TYPES.PROJECT_BLOCK_OPERATOR,
-    'core.blockware.com/v1/Block/Service': Target.TYPES.PROJECT_BLOCK_SERVICE,
-    'rest.blockware.com/v1/Client': Target.TYPES.REST_CLIENT,
-    'rest.blockware.com/v1/Resource': Target.TYPES.REST_RESOURCE,
-    'grpc.blockware.com/v1/Client': Target.TYPES.GRPC_CLIENT,
-    'grpc.blockware.com/v1/Resource': Target.TYPES.GRPC_RESOURCE
-};
 
 
 module.exports = Target;
