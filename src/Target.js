@@ -7,7 +7,7 @@ const CodeFormatter = require('./CodeFormatter');
 function walkDirectory(dir) {
     let results = [];
 
-    var files = FS.readdirSync(dir);
+    const files = FS.readdirSync(dir);
 
     files.forEach((file) => {
         file = Path.resolve(dir, file);
@@ -60,8 +60,8 @@ class Target {
      * @returns {Template}
      * @protected
      */
-    _createTemplateEngine(data) {
-        return Template.create(data, this._formatter);
+    _createTemplateEngine(data, context) {
+        return Template.create(data, context, this._formatter);
     }
 
     /**
@@ -144,7 +144,7 @@ class Target {
             const filename = fileName.substr(templateDir.length + 1);
 
             return this._parseCode(filename, sourceCode);
-        });
+        }).filter(result => !!result);
     }
 
     _parseCode(filename, sourceCode) {
@@ -170,6 +170,11 @@ class Target {
 
             return true;
         });
+
+        if (mode === 'skip') {
+            return null;
+        }
+
 
         return {
             filename: filename,

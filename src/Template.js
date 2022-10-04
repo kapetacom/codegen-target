@@ -29,11 +29,20 @@ function findKindCaseInsensitive(type) {
 }
 /**
  *
+ * @param data {object}
+ * @param context {object}
  * @param {CodeFormatter} codeFormatter
  */
-function create(context, codeFormatter) {
+function create(data, context, codeFormatter) {
     const handlebarInstance = Handlebars.create();
 
+    if (!data) {
+        throw new Error('Missing data');
+    }
+
+    if (!context) {
+        throw new Error('Missing context');
+    }
 
     /** Utils **/
 
@@ -154,6 +163,64 @@ function create(context, codeFormatter) {
 
     handlebarInstance.registerHelper('setter', function(typename, propertyId) {
         return new handlebarInstance.SafeString(codeFormatter.$setter(typename, propertyId));
+    });
+
+    function isDTO(type) {
+        if (!type ||
+            !context.spec ||
+            !context.spec.entities ||
+            !context.spec.entities.types) {
+            return false;
+        }
+
+        if (type.$ref) {
+            type = type.$ref;
+        }
+
+        type = type.toLowerCase();
+        return context.spec.entities.types.some((entity) => {
+            return (entity && entity.type === 'dto' && entity.name && entity.name.toLowerCase() === type);
+        });
+    }
+
+    handlebarInstance.registerHelper('eachTypeReference', function(entity, options) {
+        const includeNonDTORefs = options && options.hash && !!options.hash['all']
+        const found = [];
+        const out = [];
+
+        function process(entity) {
+            if (!entity) {
+                return;
+            }
+
+            if (Array.isArray(entity)) {
+                entity.forEach(process);
+                return;
+            }
+
+            if (entity &&
+                entity.$ref) {
+                const type = entity.$ref;
+                if (!includeNonDTORefs && !isDTO(type)) {
+                    return;
+                }
+
+                if (found.indexOf(type) > -1) {
+                    return;
+                }
+
+                found.push(type);
+                out.push(options.fn({name: type}));
+            }
+
+            if (typeof entity === 'object') {
+                process(Object.values(entity));
+            }
+        }
+
+        process(entity);
+
+        return new handlebarInstance.SafeString(out.join(''));
     });
 
     handlebarInstance.registerHelper('arguments', function(items, options) {

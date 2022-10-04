@@ -5,7 +5,7 @@
 class CodeFormatter {
 
     _ucfirst(text) {
-        return text.substr(0,1).toUpperCase() + text.substr(1);
+        return text.substring(0,1).toUpperCase() + text.substring(1);
     }
 
     $comment(value) {
