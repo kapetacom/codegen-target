@@ -138,6 +138,7 @@ Only renders if a block consumes / provides a certain kind of resource
 Iterates through all consumers or providers of a given type.
 
 ```metadata``` contains the metadata of the consumer / provider
+
 ```spec``` contains the spec of the consumer / provider
 ```handlebars
 {{#consumers-of-type 'rest.blockware.com/v1/Client'}}
