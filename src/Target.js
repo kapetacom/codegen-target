@@ -23,12 +23,17 @@ function walkDirectory(dir) {
     return results;
 }
 
+/**
+ * Target is the base class of all code generation language targets.
+ * Extend this to implement a new language target.
+ *
+ */
 class Target {
     /**
      *
-     * @param {object} options
-     * @param {string} baseDir
-     * @param {CodeFormatter} [formatter]
+     * @param {object} options Options to pass on all templates during rendering.
+     * @param {string} baseDir The basedir of the templates belonging to this target. It expects a "templates" folder at this base dir.
+     * @param {CodeFormatter} [formatter] The code formatter to use for this target.
      */
     constructor(options, baseDir, formatter) {
         /**

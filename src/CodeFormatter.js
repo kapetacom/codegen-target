@@ -68,10 +68,6 @@ class CodeFormatter {
         return prefix + this._ucfirst(propertyId);
     }
 
-    $setter(value) {
-        return value;
-    }
-
     $returnType(value) {
         if (!value) {
             return 'void';
