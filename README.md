@@ -1,58 +1,6 @@
 # Blockware Code generator SDK 
 This module provides the SDK for implementing code generating targets
 
-## Exports
-This module provides a few different things to aid in code generation using
-handlebars templates.
-
-### Target
-The most important class in this library - which all language targets should
-extend. 
-
-It takes ```options```, ```baseDir``` and a ```formatter``` as arguments. 
-- ```options``` is simply passed on to the templates
-- ```baseDir``` is the basedir of the language target. It expects a folder named ```templates``` to be in the baseDir which contains all templates.
-
-The formatter is either the CodeFormatter or a sub-class of that. 
-
-See below for more on CodeFormatters.
-
-#### Generating code
-The main method for generating code using ```Target``` 
-is ```Target::generate(data, context)```. 
-It will pass both data and context to the templates to be used. 
-
-It expects a ```kind``` property to exist on the "data" argument - 
-which is how it determines which template to use.
-
-The template(s) is determined by baseDir and kind - e.g. for kind: ```"my.resource.type"```
-it will look for a folder named: 
-```{baseDir}/templates/my.resource.type```. 
-It will then iterate all files in that folder and generate code based on each of them.
-
-
-### CodeFormatter
-The code formatting base class contains a number of methods for formatting 
-different types of common code structures
-
-This is to make it easy to extend and override this formatting for different 
-languages and conventions. 
-
-### Template
-Contains a methods that sets up handlebars and otherwise helps with handlebar
-rendering. 
-
-The create method is called internally from Target and should usually not be used directly.
-```javascript
-Template.create(data, context, codeFormatter)
-```
-
-The SafeString method is simply wrapping handlebars safestring - to allow
-for rendering strings that handlebars otherwise would escape.
-```javascript
-Template.SafeString(someString)
-```
-
 ## Template Syntax
 Other than normal handlebars syntax - the codegen will handle
 the first line of the output rendered for any template specially
@@ -175,3 +123,88 @@ E.g. ```CodeFormatter::$returnType``` is available as
 ```handlebars 
 {{returnType data.value}}
 ``` 
+
+## Template names
+Template names are basically the ```kind``` for both blocks and resources.
+
+### ```blocks.blockware.com/v1/service```
+Templates for service blocks. Should contain core boilerplate for running, 
+building and testing a service block for this language target - if applicable.
+
+### ```blocks.blockware.com/v1/frontend```
+Templates for frontend blocks. Should contain core boilerplate for running, 
+building and testing a frontend block for this language target - if applicable.
+ 
+### ```core.blockware.com/v1/entity```
+Templates for entities. Should handle both data structures and enums.
+
+### ```nosqldb.blockware.com/v1/mongodb```
+Templates for MongoDB. Should render setup for using a MongoDB Database.
+
+### ```sqldb.blockware.com/v1/postgresql```
+Templates for Postgres. Should render setup for using a Postgres Database.
+
+### ```rest.blockware.com/v1/api```
+Templates for REST APIs. Should render code that provides a REST API for the block
+
+### ```rest.blockware.com/v1/client```
+Templates for REST Clients. Should render code that provides a REST Client for the block
+
+**NOTE**: It is usually needed, for in particular resource types,
+to have some sort of Blockware-specific SDK backing the code generation. 
+Meaning the generated code uses a pre-built SDK.
+
+This is because of how Blockware automatically makes databases available Just-in-Time
+and to keep Blockware in control of the traffic flowing between blocks - also locally. 
+
+## Exports
+This module provides a few different things to aid in code generation using
+handlebars templates.
+
+### Target
+The most important class in this library - which all language targets should
+extend.
+
+It takes ```options```, ```baseDir``` and a ```formatter``` as arguments.
+- ```options``` is simply passed on to the templates
+- ```baseDir``` is the basedir of the language target. It expects a folder named ```templates``` to be in the baseDir which contains all templates.
+
+The formatter is either the CodeFormatter or a sub-class of that.
+
+See below for more on CodeFormatters.
+
+#### Generating code
+The main method for generating code using ```Target```
+is ```Target::generate(data, context)```.
+It will pass both data and context to the templates to be used.
+
+It expects a ```kind``` property to exist on the "data" argument -
+which is how it determines which template to use.
+
+The template(s) is determined by baseDir and kind - e.g. for kind: ```"my.resource.type"```
+it will look for a folder named:
+```{baseDir}/templates/my.resource.type```.
+It will then iterate all files in that folder and generate code based on each of them.
+
+
+### CodeFormatter
+The code formatting base class contains a number of methods for formatting
+different types of common code structures
+
+This is to make it easy to extend and override this formatting for different
+languages and conventions.
+
+### Template
+Contains a methods that sets up handlebars and otherwise helps with handlebar
+rendering.
+
+The create method is called internally from Target and should usually not be used directly.
+```javascript
+Template.create(data, context, codeFormatter)
+```
+
+The SafeString method is simply wrapping handlebars safestring - to allow
+for rendering strings that handlebars otherwise would escape.
+```javascript
+Template.SafeString(someString)
+```
