@@ -73,10 +73,10 @@ Provides a switch structure to the template
 #### consumes / provides
 Only renders if a block consumes / provides a certain kind of resource
 ```handlebars
-{{#consumes 'rest.blockware.com/v1/Client'}}
+{{#consumes 'blockware/resource-type-rest-client'}}
     Only render if block consumes a REST client
 {{/consumes}}
-{{#provides 'rest.blockware.com/v1/API'}},
+{{#provides 'blockware/resource-type-rest-api'}},
     Only render if block provides a REST API
 {{/provides}}
 ```
@@ -89,10 +89,10 @@ Iterates through all consumers or providers of a given type.
 
 ```spec``` contains the spec of the consumer / provider
 ```handlebars
-{{#consumers-of-type 'rest.blockware.com/v1/Client'}}
+{{#consumers-of-type 'blockware/resource-type-rest-client'}}
   Renders once per REST Client consumer. This one is called: {{type metadata.name}}.
 {{/consumers-of-type}}
-{{#providers-of-type 'rest.blockware.com/v1/API'}}
+{{#providers-of-type 'blockware/resource-type-rest-api'}}
   Renders once per REST API provider. This one is called: {{type metadata.name}}.
 {{/providers-of-type}}
 ```
@@ -127,27 +127,27 @@ E.g. ```CodeFormatter::$returnType``` is available as
 ## Template names
 Template names are basically the ```kind``` for both blocks and resources.
 
-### ```blocks.blockware.com/v1/service```
+### ```blockware/block-type-service```
 Templates for service blocks. Should contain core boilerplate for running, 
 building and testing a service block for this language target - if applicable.
 
-### ```blocks.blockware.com/v1/frontend```
+### ```blockware/block-type-frontend```
 Templates for frontend blocks. Should contain core boilerplate for running, 
 building and testing a frontend block for this language target - if applicable.
  
 ### ```core.blockware.com/v1/entity```
 Templates for entities. Should handle both data structures and enums.
 
-### ```nosqldb.blockware.com/v1/mongodb```
+### ```blockware/resource-type-mongodb```
 Templates for MongoDB. Should render setup for using a MongoDB Database.
 
-### ```sqldb.blockware.com/v1/postgresql```
+### ```blockware/resource-type-postgresql```
 Templates for Postgres. Should render setup for using a Postgres Database.
 
-### ```rest.blockware.com/v1/api```
+### ```blockware/resource-type-rest-api```
 Templates for REST APIs. Should render code that provides a REST API for the block
 
-### ```rest.blockware.com/v1/client```
+### ```blockware/resource-type-rest-client```
 Templates for REST Clients. Should render code that provides a REST Client for the block
 
 **NOTE**: It is usually needed, for in particular resource types,
