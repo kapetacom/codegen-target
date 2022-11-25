@@ -1,6 +1,6 @@
 {
   "name": "@blockware/codegen-target",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "SDK module for creating code generation targets",
   "main": "index.js",
   "repository": {
