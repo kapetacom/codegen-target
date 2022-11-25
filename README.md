@@ -135,7 +135,7 @@ building and testing a service block for this language target - if applicable.
 Templates for frontend blocks. Should contain core boilerplate for running, 
 building and testing a frontend block for this language target - if applicable.
  
-### ```core.blockware.com/v1/entity```
+### ```core/entity```
 Templates for entities. Should handle both data structures and enums.
 
 ### ```blockware/resource-type-mongodb```
