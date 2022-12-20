@@ -50,6 +50,13 @@ function create(data, context, codeFormatter) {
         return new handlebarInstance.SafeString(typename.toLowerCase());
     });
 
+    handlebarInstance.registerHelper('assetName', function(typename) {
+        if (typename.indexOf("/") === -1) {
+            return new handlebarInstance.SafeString(typename);
+        }
+        return new handlebarInstance.SafeString(typename.split("/")[1]);
+    });
+
     handlebarInstance.registerHelper('curly', function(object, open) {
         return open ? '{' : '}';
     });
