@@ -57,6 +57,10 @@ function create(data, context, codeFormatter) {
         return new handlebarInstance.SafeString(typename.split("/")[1]);
     });
 
+    handlebarInstance.registerHelper('dashify', function(typename) {
+        return new handlebarInstance.SafeString(typename.replace(/\_/g, '-').replace(/\//g, '-'));
+    });
+
     handlebarInstance.registerHelper('curly', function(object, open) {
         return open ? '{' : '}';
     });
