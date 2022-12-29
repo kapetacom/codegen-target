@@ -10,7 +10,7 @@ function findKindCaseInsensitive(type) {
 
     let wildcard = false;
     if (type.endsWith('*')) {
-        type = type.substr(0, type.length - 1);
+        type = type.substring(0, type.length - 1);
         wildcard = true;
     }
 
@@ -24,7 +24,13 @@ function findKindCaseInsensitive(type) {
             return data.kind.toLowerCase().startsWith(type);
         }
 
-        return (type.toLowerCase() === data.kind.toLowerCase());
+        const [name] = data.kind.split(':');
+        if (type.indexOf(':') > -1) {
+            //Requested type contains version
+            return (type.toLowerCase() === data.kind.toLowerCase());
+        }
+
+        return (type.toLowerCase() === name.toLowerCase());
     }
 }
 /**
