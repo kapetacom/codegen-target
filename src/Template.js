@@ -217,7 +217,12 @@ function create(data, context, codeFormatter) {
 
             if (entity &&
                 entity.$ref) {
-                const type = entity.$ref;
+                let type = entity.$ref;
+                if (type.endsWith('[]')) {
+                    //Get rid of array indicator
+                    type = type.substring(0, type.length - 2);
+                }
+
                 if (!includeNonDTORefs && !isDTO(type)) {
                     return;
                 }
