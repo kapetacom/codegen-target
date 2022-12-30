@@ -124,7 +124,7 @@ class Target {
      */
     generate(data, context) {
 
-        const template = data.kind.toLowerCase();
+        const [template, version] = data.kind.toLowerCase().split(':');
 
         if (!template) {
             throw new Error('No template found for kind: ' + data.kind);
