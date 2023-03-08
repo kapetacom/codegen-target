@@ -56,6 +56,22 @@ function create(data, context, codeFormatter) {
         return new handlebarInstance.SafeString(typename.toLowerCase());
     });
 
+    handlebarInstance.registerHelper('uppercase', function(typename) {
+        return new handlebarInstance.SafeString(typename.toUpperCase());
+    });
+
+    handlebarInstance.registerHelper('default', function(value, defaultValue) {
+        return new handlebarInstance.SafeString(value ?? defaultValue);
+    });
+
+    handlebarInstance.registerHelper('json', function(value) {
+        return new handlebarInstance.SafeString(JSON.stringify(value));
+    });
+
+    handlebarInstance.registerHelper('json-string', function(value) {
+        return new handlebarInstance.SafeString(JSON.stringify(JSON.stringify(value)));
+    });
+
     handlebarInstance.registerHelper('assetName', function(typename) {
         if (typename.indexOf("/") === -1) {
             return new handlebarInstance.SafeString(typename);
@@ -75,8 +91,7 @@ function create(data, context, codeFormatter) {
         var out = [];
 
         _.forEach(items, function(item, key) {
-            item['propertyId'] = key;
-            out.push(options.fn(item));
+            out.push(options.fn({...item, propertyId: key}));
         });
 
         return out.join('');

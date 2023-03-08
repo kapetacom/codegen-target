@@ -130,15 +130,23 @@ class Target {
             throw new Error('No template found for kind: ' + data.kind);
         }
 
-        var templateDir = Path.join(this._baseDir, 'templates', template);
+        const rootTemplateDir = Path.join(this._baseDir, 'templates');
+        const kindTemplateDir = Path.join(rootTemplateDir, template);
 
-        if (!FS.existsSync(templateDir)) {
-            throw new Error('Template not found "' + templateDir + '" for kind: ' + data.kind);
+        if (!FS.existsSync(kindTemplateDir)) {
+            throw new Error('Template not found "' + kindTemplateDir + '" for kind: ' + data.kind);
         }
 
-        const templateFiles = walkDirectory(templateDir);
+        const templateFiles = walkDirectory(kindTemplateDir);
 
         const templateEngine = this._createTemplateEngine(data, context);
+
+        walkDirectory(rootTemplateDir).map(file => {
+            return {id: file.substring(rootTemplateDir.length + 1), file}
+        }).forEach(info => {
+            const content = FS.readFileSync(info.file).toString();
+            templateEngine.registerPartial(info.id, content);
+        });
 
         return templateFiles.map((fileName) => {
             const templateSource = FS.readFileSync(fileName).toString();
@@ -146,10 +154,14 @@ class Target {
             //We always clone data in case a target implementation wants to change it
             const sourceCode = this._render(templateEngine, fileName, templateSource, _.cloneDeep(data), context);
 
-            const filename = fileName.substr(templateDir.length + 1);
+            const filename = fileName.substr(kindTemplateDir.length + 1);
 
             return this._parseCode(filename, sourceCode);
         }).filter(result => !!result);
+    }
+
+    async preprocess(data) {
+        return data;
     }
 
     _parseCode(filename, sourceCode) {
