@@ -1,4 +1,4 @@
-# Blockware Code generator SDK 
+# Kapeta Code generator SDK 
 This module provides the SDK for implementing code generating targets
 
 ## Template Syntax
@@ -73,10 +73,10 @@ Provides a switch structure to the template
 #### consumes / provides
 Only renders if a block consumes / provides a certain kind of resource
 ```handlebars
-{{#consumes 'blockware/resource-type-rest-client'}}
+{{#consumes 'kapeta/resource-type-rest-client'}}
     Only render if block consumes a REST client
 {{/consumes}}
-{{#provides 'blockware/resource-type-rest-api'}},
+{{#provides 'kapeta/resource-type-rest-api'}},
     Only render if block provides a REST API
 {{/provides}}
 ```
@@ -89,10 +89,10 @@ Iterates through all consumers or providers of a given type.
 
 ```spec``` contains the spec of the consumer / provider
 ```handlebars
-{{#consumers-of-type 'blockware/resource-type-rest-client'}}
+{{#consumers-of-type 'kapeta/resource-type-rest-client'}}
   Renders once per REST Client consumer. This one is called: {{type metadata.name}}.
 {{/consumers-of-type}}
-{{#providers-of-type 'blockware/resource-type-rest-api'}}
+{{#providers-of-type 'kapeta/resource-type-rest-api'}}
   Renders once per REST API provider. This one is called: {{type metadata.name}}.
 {{/providers-of-type}}
 ```
@@ -127,35 +127,35 @@ E.g. ```CodeFormatter::$returnType``` is available as
 ## Template names
 Template names are basically the ```kind``` for both blocks and resources.
 
-### ```blockware/block-type-service```
+### ```kapeta/block-type-service```
 Templates for service blocks. Should contain core boilerplate for running, 
 building and testing a service block for this language target - if applicable.
 
-### ```blockware/block-type-frontend```
+### ```kapeta/block-type-frontend```
 Templates for frontend blocks. Should contain core boilerplate for running, 
 building and testing a frontend block for this language target - if applicable.
  
 ### ```core/entity```
 Templates for entities. Should handle both data structures and enums.
 
-### ```blockware/resource-type-mongodb```
+### ```kapeta/resource-type-mongodb```
 Templates for MongoDB. Should render setup for using a MongoDB Database.
 
-### ```blockware/resource-type-postgresql```
+### ```kapeta/resource-type-postgresql```
 Templates for Postgres. Should render setup for using a Postgres Database.
 
-### ```blockware/resource-type-rest-api```
+### ```kapeta/resource-type-rest-api```
 Templates for REST APIs. Should render code that provides a REST API for the block
 
-### ```blockware/resource-type-rest-client```
+### ```kapeta/resource-type-rest-client```
 Templates for REST Clients. Should render code that provides a REST Client for the block
 
 **NOTE**: It is usually needed, for in particular resource types,
-to have some sort of Blockware-specific SDK backing the code generation. 
+to have some sort of Kapeta-specific SDK backing the code generation. 
 Meaning the generated code uses a pre-built SDK.
 
-This is because of how Blockware automatically makes databases available Just-in-Time
-and to keep Blockware in control of the traffic flowing between blocks - also locally. 
+This is because of how Kapeta automatically makes databases available Just-in-Time
+and to keep Kapeta in control of the traffic flowing between blocks - also locally. 
 
 ## Exports
 This module provides a few different things to aid in code generation using
