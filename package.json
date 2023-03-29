@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blockwarecom/codegen-target.git"
+    "url": "git+https://github.com/kapetacom/codegen-target.git"
   },
   "private": false,
   "publishConfig": {
@@ -17,9 +17,9 @@
   "author": "Henrik Hofmeister <hh@kapeta.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/blockwarecom/codegen-target/issues"
+    "url": "https://github.com/kapetacom/codegen-target/issues"
   },
-  "homepage": "https://github.com/blockwarecom/codegen-target#readme",
+  "homepage": "https://github.com/kapetacom/codegen-target#readme",
   "dependencies": {
     "handlebars": "4.1.2",
     "lodash": "4.17.11",
