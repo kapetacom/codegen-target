@@ -1,11 +1,5 @@
-import {CodeFormatter} from './CodeFormatter';
-import {Target} from './Target';
-import * as Template from './Template';
-import JestConfig from './test-helpers/jest.config';
-
-export default {
-    CodeFormatter,
-    Target,
-    Template,
-    JestConfig
-};
+export * from './CodeFormatter';
+export * from './Target';
+export * as Template from './Template';
+export * as JestConfig from './test-helpers/jest.config';
+export * from './types';

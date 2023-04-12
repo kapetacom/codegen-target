@@ -1,9 +1,8 @@
 {
   "name": "@kapeta/codegen-target",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "SDK module for creating code generation targets",
   "main": "dist/index.js",
-  "module": "src/index.ts",
   "types": "types/index.d.ts",
   "repository": {
     "type": "git",
@@ -33,6 +32,7 @@
   },
   "devDependencies": {
     "@kapeta/schemas": "^0.0.35",
+    "@types/lodash": "^4.14.192",
     "@types/node": "^18.15.11",
     "typescript": "^5.0.4"
   }

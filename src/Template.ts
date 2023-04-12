@@ -1,9 +1,12 @@
-import * as Handlebars from 'handlebars';
-import * as _ from 'lodash';
+import Handlebars from 'handlebars';
+import _ from 'lodash';
 import {HelperOptions} from "handlebars";
+import {CodeFormatter} from "./CodeFormatter";
 
 Handlebars.noConflict(); //Remove from global space
 
+
+export type TemplateType = typeof Handlebars;
 
 function findKindCaseInsensitive(type:string) {
 
@@ -40,7 +43,7 @@ function findKindCaseInsensitive(type:string) {
  * @param context {object}
  * @param {CodeFormatter} codeFormatter
  */
-export function create(data, context, codeFormatter) {
+export function create(data:any, context:any, codeFormatter:CodeFormatter):TemplateType {
     const handlebarInstance = Handlebars.create();
 
     if (!data) {
@@ -291,6 +294,6 @@ export function create(data, context, codeFormatter) {
     return handlebarInstance;
 }
 
-export function SafeString(string) {
+export function SafeString(string:string):Handlebars.SafeString {
     return new Handlebars.SafeString(string);
 }

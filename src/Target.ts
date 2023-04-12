@@ -33,37 +33,14 @@ export class Target {
     protected readonly options: object;
     private readonly _baseDir: string;
     private readonly _formatter: CodeFormatter;
-    /**
-     *
-     * @param {object} options Options to pass on all templates during rendering.
-     * @param {string} baseDir The basedir of the templates belonging to this target. It expects a "templates" folder at this base dir.
-     * @param {CodeFormatter} [formatter] The code formatter to use for this target.
-     */
-    constructor(options, baseDir, formatter) {
-        /**
-         * @type {object}
-         * @property
-         * @public
-         */
+
+    constructor(options:object, baseDir:string, formatter?:CodeFormatter) {
         this.options = options;
-
-        /**
-         * @type {string}
-         * @property
-         * @private
-         */
-
         this._baseDir = baseDir;
-
-        /**
-         * @type {CodeFormatter}
-         * @property
-         * @protected
-         */
         this._formatter = formatter || new CodeFormatter();
     }
 
-    protected _createTemplateEngine(data:any, context): typeof Handlebars {
+    protected _createTemplateEngine(data:any, context:any): Template.TemplateType {
         return Template.create(data, context, this._formatter);
     }
 
@@ -150,7 +127,7 @@ export class Target {
         return out;
     }
 
-    public async preprocess(data) {
+    public async preprocess(data:any) {
         return data;
     }
 
@@ -181,7 +158,6 @@ export class Target {
         if (mode === 'skip') {
             return null;
         }
-
 
         return {
             filename: filename,

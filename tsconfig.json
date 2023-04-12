@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "CommonJS",
     "target": "es6",
     "jsx": "react",
     "lib": [
@@ -26,6 +26,7 @@
   },
   "exclude": ["node_modules", "types", "dist"],
   "include": [
-    "src/index.ts"
+    "src/index.ts",
+    "src/test-helpers/yaml-transform.js"
   ]
 }
