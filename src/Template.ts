@@ -1,10 +1,11 @@
-const Handlebars = require('handlebars');
-const _ = require('lodash');
+import * as Handlebars from 'handlebars';
+import * as _ from 'lodash';
+import {HelperOptions} from "handlebars";
 
 Handlebars.noConflict(); //Remove from global space
 
 
-function findKindCaseInsensitive(type) {
+function findKindCaseInsensitive(type:string) {
 
     type = type.toLowerCase();
 
@@ -39,7 +40,7 @@ function findKindCaseInsensitive(type) {
  * @param context {object}
  * @param {CodeFormatter} codeFormatter
  */
-function create(data, context, codeFormatter) {
+export function create(data, context, codeFormatter) {
     const handlebarInstance = Handlebars.create();
 
     if (!data) {
@@ -80,15 +81,15 @@ function create(data, context, codeFormatter) {
     });
 
     handlebarInstance.registerHelper('dashify', function(typename) {
-        return new handlebarInstance.SafeString(typename.replace(/\_/g, '-').replace(/\//g, '-'));
+        return new handlebarInstance.SafeString(typename.replace(/_/g, '-').replace(/\//g, '-'));
     });
 
     handlebarInstance.registerHelper('curly', function(object, open) {
         return open ? '{' : '}';
     });
 
-    handlebarInstance.registerHelper('eachProperty', function(items, options) {
-        var out = [];
+    handlebarInstance.registerHelper('eachProperty', function(items:any, options:HelperOptions) {
+        const out:string[] = [];
 
         _.forEach(items, function(item, key) {
             out.push(options.fn({...item, propertyId: key}));
@@ -99,18 +100,18 @@ function create(data, context, codeFormatter) {
 
 
 
-    handlebarInstance.registerHelper('switch', function(value, options) {
+    handlebarInstance.registerHelper('switch', function(value, options:HelperOptions) {
         this.switch_value = value;
         return options.fn(this);
     });
 
-    handlebarInstance.registerHelper('case', function(value, options) {
+    handlebarInstance.registerHelper('case', function(value, options:HelperOptions) {
         if (value === this.switch_value) {
             return options.fn(this);
         }
     });
 
-    handlebarInstance.registerHelper('consumes', function(type, options) {
+    handlebarInstance.registerHelper('consumes', function(type, options:HelperOptions) {
         if (!context.spec.consumers) {
             return '';
         }
@@ -121,7 +122,7 @@ function create(data, context, codeFormatter) {
 
     });
 
-    handlebarInstance.registerHelper('provides', function(type, options) {
+    handlebarInstance.registerHelper('provides', function(type, options:HelperOptions) {
         if (!context.spec.providers) {
             return '';
         }
@@ -131,23 +132,23 @@ function create(data, context, codeFormatter) {
         }
     });
 
-    handlebarInstance.registerHelper('consumers-of-type', function(type, options) {
+    handlebarInstance.registerHelper('consumers-of-type', function(type, options:HelperOptions) {
         if (!context.spec.consumers) {
             return '';
         }
 
-        var out = [];
+        const out:string[] = [];
         _.filter(context.spec.consumers, findKindCaseInsensitive(type)).forEach((consumer) => {
             out.push(options.fn(consumer));
         });
         return out.join('\n');
     });
 
-    handlebarInstance.registerHelper('providers-of-type', function(type, options) {
+    handlebarInstance.registerHelper('providers-of-type', function(type, options:HelperOptions) {
         if (!context.spec.providers) {
             return '';
         }
-        var out = [];
+        const out:string[] = [];
         _.filter(context.spec.providers, findKindCaseInsensitive(type)).forEach((provider) => {
             out.push(options.fn(provider));
         });
@@ -205,8 +206,12 @@ function create(data, context, codeFormatter) {
             return false;
         }
 
-        if (type.$ref) {
-            type = type.$ref;
+        if (type.ref) {
+            type = type.ref;
+        }
+
+        if (type.type) {
+            type = type.type;
         }
 
         type = type.toLowerCase();
@@ -215,12 +220,12 @@ function create(data, context, codeFormatter) {
         });
     }
 
-    handlebarInstance.registerHelper('eachTypeReference', function(entity, options) {
-        const includeNonDTORefs = options && options.hash && !!options.hash['all']
-        const found = [];
-        const out = [];
+    handlebarInstance.registerHelper('eachTypeReference', function(entity, options:HelperOptions) {
+        const includeNonDTORefs = options?.hash && !!options.hash['all']
+        const found:string[] = [];
+        const out:string[] = [];
 
-        function process(entity) {
+        function process(entity:any|any[]) {
             if (!entity) {
                 return;
             }
@@ -230,9 +235,8 @@ function create(data, context, codeFormatter) {
                 return;
             }
 
-            if (entity &&
-                entity.$ref) {
-                let type = entity.$ref;
+            if (entity?.ref) {
+                let type = entity.ref;
                 if (type.endsWith('[]')) {
                     //Get rid of array indicator
                     type = type.substring(0, type.length - 2);
@@ -260,8 +264,8 @@ function create(data, context, codeFormatter) {
         return new handlebarInstance.SafeString(out.join(''));
     });
 
-    handlebarInstance.registerHelper('arguments', function(items, options) {
-        var out = [];
+    handlebarInstance.registerHelper('arguments', function(items, options:HelperOptions) {
+        const out:string[] = [];
 
         _.forEach(items, function(item, key) {
             item['argumentName'] = key;
@@ -273,8 +277,8 @@ function create(data, context, codeFormatter) {
         return codeFormatter.$arguments(out);
     });
 
-    handlebarInstance.registerHelper('methods', function(items, options) {
-        var out = [];
+    handlebarInstance.registerHelper('methods', function(items, options:HelperOptions) {
+        const out:string[] = [];
 
         _.forEach(items, function(item, key) {
             item['methodName'] = key;
@@ -287,9 +291,6 @@ function create(data, context, codeFormatter) {
     return handlebarInstance;
 }
 
-
-exports.create = create;
-
-exports.SafeString = function(string) {
+export function SafeString(string) {
     return new Handlebars.SafeString(string);
-};
+}

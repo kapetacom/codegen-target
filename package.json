@@ -1,8 +1,10 @@
 {
   "name": "@kapeta/codegen-target",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "description": "SDK module for creating code generation targets",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "src/index.ts",
+  "types": "types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kapetacom/codegen-target.git"
@@ -10,6 +12,10 @@
   "private": false,
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "npm run build"
   },
   "keywords": [
     "kapeta"
@@ -24,5 +30,10 @@
     "handlebars": "4.1.2",
     "lodash": "4.17.11",
     "yaml": "^2.1.2"
+  },
+  "devDependencies": {
+    "@kapeta/schemas": "^0.0.35",
+    "@types/node": "^18.15.11",
+    "typescript": "^5.0.4"
   }
 }
