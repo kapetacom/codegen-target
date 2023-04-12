@@ -1,7 +1,7 @@
 import Handlebars from 'handlebars';
 import _ from 'lodash';
 import {HelperOptions} from "handlebars";
-import {CodeFormatter} from "./CodeFormatter";
+import {CodeFormatter, TypeLike} from "./CodeFormatter";
 
 Handlebars.noConflict(); //Remove from global space
 
@@ -189,7 +189,7 @@ export function create(data:any, context:any, codeFormatter:CodeFormatter):Templ
         return new handlebarInstance.SafeString(codeFormatter.$method(typename));
     });
 
-    handlebarInstance.registerHelper('returnType', function(typename) {
+    handlebarInstance.registerHelper('returnType', function(typename:TypeLike) {
         return new handlebarInstance.SafeString(codeFormatter.$returnType(typename));
     });
 
@@ -297,3 +297,4 @@ export function create(data:any, context:any, codeFormatter:CodeFormatter):Templ
 export function SafeString(string:string):Handlebars.SafeString {
     return new Handlebars.SafeString(string);
 }
+

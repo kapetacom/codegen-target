@@ -1,7 +1,18 @@
-
-export type TypeInfo = string | {
-    ref?:string
+export type TypeLike = string|{
     type?:string
+    ref?:string
+}
+
+export function toTypeName(typeLike:TypeLike) {
+    let text = ''
+    if (typeof typeLike === 'string') {
+        text = typeLike;
+    } else if (typeLike.type) {
+        text = typeLike.type
+    } else if (typeLike.ref) {
+        text = typeLike.ref
+    }
+    return text;
 }
 
 export class CodeFormatter {
@@ -30,19 +41,9 @@ export class CodeFormatter {
         return values.join('\n\n');
     }
 
-    $type(value?:TypeInfo):string {
-        let strValue:string = '';
+    $type(value?:TypeLike):string {
+        let strValue:string = value ? toTypeName(value) : '';
 
-        if (typeof value === 'string') {
-            strValue = value;
-        } else if (value) {
-            strValue = '';
-            if (value.ref) {
-                strValue = value.ref;
-            } else if (value.type) {
-                strValue = value.type;
-            }
-        }
 
         if (!value || !strValue) {
             return 'void';
@@ -58,7 +59,7 @@ export class CodeFormatter {
     $variable(value):string {
         const typeName = this.$type(value);
 
-        return typeName.substr(0,1).toLowerCase() + typeName.substr(1);
+        return typeName.substring(0,1).toLowerCase() + typeName.substring(1);
     }
 
     $string(value):string {
@@ -79,7 +80,7 @@ export class CodeFormatter {
         return prefix + this._ucfirst(propertyId);
     }
 
-    $returnType(value):string {
+    $returnType(value:TypeLike):string {
         if (!value) {
             return 'void';
         }
