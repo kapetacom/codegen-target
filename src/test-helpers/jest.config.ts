@@ -1,5 +1,5 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
+export default {
     transform: {
         "\\.ya?ml$": require.resolve('./yaml-transform')
     },

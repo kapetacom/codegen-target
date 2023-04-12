@@ -1,11 +1,12 @@
-const _ = require('lodash');
-const Path = require('path');
-const FS = require('fs');
-const Template = require('./Template');
-const CodeFormatter = require('./CodeFormatter');
+import * as _ from 'lodash';
+import * as Path from 'path';
+import * as FS from 'fs';
+import * as Template from './Template';
+import {CodeFormatter} from './CodeFormatter';
+import {GeneratedFile} from "./types";
 
-function walkDirectory(dir) {
-    let results = [];
+function walkDirectory(dir:string) {
+    let results:string[] = [];
 
     const files = FS.readdirSync(dir);
 
@@ -28,7 +29,10 @@ function walkDirectory(dir) {
  * Extend this to implement a new language target.
  *
  */
-class Target {
+export class Target {
+    protected readonly options: object;
+    private readonly _baseDir: string;
+    private readonly _formatter: CodeFormatter;
     /**
      *
      * @param {object} options Options to pass on all templates during rendering.
@@ -59,13 +63,7 @@ class Target {
         this._formatter = formatter || new CodeFormatter();
     }
 
-    /**
-     *
-     * @param {object} data
-     * @returns {Template}
-     * @protected
-     */
-    _createTemplateEngine(data, context) {
+    protected _createTemplateEngine(data:any, context): typeof Handlebars {
         return Template.create(data, context, this._formatter);
     }
 
@@ -73,16 +71,8 @@ class Target {
      * The actual rendering of code - uses handlebars by default
      *
      * Override this method to change templating engine
-     *
-     * @param {Template} templateEngine The template engine
-     * @param {string} sourceFile The template file name
-     * @param {string} templateSource The template file content
-     * @param {object} data The data from the YML definition
-     * @param {object} context The full YML document
-     * @returns {string} the rendered code
-     * @protected
      */
-    _render(templateEngine, sourceFile, templateSource, data, context) {
+    protected _render(templateEngine: typeof Handlebars, sourceFile: string, templateSource: string, data: any, context: any):string {
         try {
             const template = templateEngine.compile(templateSource);
 
@@ -101,12 +91,8 @@ class Target {
      *
      * Override to do post processing of the generated code - e.g. use "prettier" to format it
      *
-     * @param {string} filename the relative filename of the source file
-     * @param {string} code the actual rendered code
-     * @returns {string}
-     * @protected
      */
-    _postProcessCode(filename, code) {
+    protected _postProcessCode(filename:string, code:string):string {
         return code;
     }
 
@@ -118,11 +104,8 @@ class Target {
      * Note that this method returns the generated code as an array of data - and
      * does not write anything to disk.
      *
-     * @param {object} data
-     * @param {object} context
-     * @returns {{filename: string, content: string}[]}
      */
-    generate(data, context) {
+    public generate(data:any, context:any):GeneratedFile[] {
 
         const [template, version] = data.kind.toLowerCase().split(':');
 
@@ -148,7 +131,9 @@ class Target {
             templateEngine.registerPartial(info.id, content);
         });
 
-        return templateFiles.map((fileName) => {
+        const out:GeneratedFile[] = [];
+
+        templateFiles.forEach((fileName) => {
             const templateSource = FS.readFileSync(fileName).toString();
 
             //We always clone data in case a target implementation wants to change it
@@ -156,15 +141,20 @@ class Target {
 
             const filename = fileName.substr(kindTemplateDir.length + 1);
 
-            return this._parseCode(filename, sourceCode);
-        }).filter(result => !!result);
+            const file = this._parseCode(filename, sourceCode);
+            if (file) {
+                out.push(file);
+            }
+        });
+
+        return out;
     }
 
-    async preprocess(data) {
+    public async preprocess(data) {
         return data;
     }
 
-    _parseCode(filename, sourceCode) {
+    private _parseCode(filename, sourceCode):null|GeneratedFile {
         let mode = 'write-always';
         let permissions = '644';
         const lines = sourceCode.split(/\n/g).filter((line) => {
@@ -202,6 +192,3 @@ class Target {
     }
 
 }
-
-
-module.exports = Target;
