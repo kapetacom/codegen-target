@@ -3,7 +3,7 @@ import * as Path from 'path';
 import * as FS from 'fs';
 import * as Template from './Template';
 import {CodeFormatter} from './CodeFormatter';
-import {GeneratedFile} from "./types";
+import {GeneratedAsset, GeneratedFile} from "./types";
 
 function walkDirectory(dir:string) {
     let results:string[] = [];
@@ -116,7 +116,7 @@ export class Target {
             //We always clone data in case a target implementation wants to change it
             const sourceCode = this._render(templateEngine, fileName, templateSource, _.cloneDeep(data), context);
 
-            const filename = fileName.substr(kindTemplateDir.length + 1);
+            const filename = fileName.substring(kindTemplateDir.length + 1);
 
             const file = this._parseCode(filename, sourceCode);
             if (file) {
@@ -129,6 +129,11 @@ export class Target {
 
     public async preprocess(data:any) {
         return data;
+    }
+
+
+    public async postprocess(files:GeneratedAsset[]) {
+
     }
 
     private _parseCode(filename, sourceCode):null|GeneratedFile {
