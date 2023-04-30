@@ -132,7 +132,7 @@ export class Target {
     }
 
 
-    public async postprocess(files:GeneratedAsset[]) {
+    public async postprocess(targetDir:string, files:GeneratedAsset[]) {
 
     }
 
