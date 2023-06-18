@@ -1,39 +1,89 @@
 {
-  "name": "@kapeta/codegen-target",
-  "version": "0.0.29",
-  "description": "SDK module for creating code generation targets",
-  "main": "dist/index.js",
-  "types": "types/index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kapetacom/codegen-target.git"
-  },
-  "private": false,
-  "publishConfig": {
-    "access": "public"
-  },
-  "scripts": {
-    "build": "tsc",
-    "prepublish": "npm run build"
-  },
-  "keywords": [
-    "kapeta"
-  ],
-  "author": "Henrik Hofmeister <hh@kapeta.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kapetacom/codegen-target/issues"
-  },
-  "homepage": "https://github.com/kapetacom/codegen-target#readme",
-  "dependencies": {
-    "handlebars": "4.1.2",
-    "lodash": "4.17.11",
-    "yaml": "^2.1.2"
-  },
-  "devDependencies": {
-    "@kapeta/schemas": "^0.0.35",
-    "@types/lodash": "^4.14.192",
-    "@types/node": "^18.15.11",
-    "typescript": "^5.0.4"
-  }
+    "name": "@kapeta/codegen-target",
+    "version": "0.0.29",
+    "description": "SDK module for creating code generation targets",
+    "type": "commonjs",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/esm/index.d.ts",
+                "default": "./dist/esm/index.js"
+            },
+            "require": {
+                "types": "./dist/cjs/index.d.cts",
+                "default": "./dist/cjs/index.js"
+            }
+        }
+    },
+    "types": "./dist/esm/index.d.ts",
+    "main": "./dist/cjs/index.js",
+    "scripts": {
+        "clean": "rm -rf ./dist",
+        "build:esm": "tsc --module esnext --outDir ./dist/esm && echo '{\"type\":\"module\"}' > ./dist/esm/package.json",
+        "build:cjs": "tsc --module commonjs --outDir ./dist/cjs && echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json",
+        "build": "npm run clean && npm run build:esm && npm run build:cjs",
+        "format": "prettier --write .",
+        "lint": "tsc --noEmit && eslint src/**/*.ts",
+        "prepublishOnly": "npm run build"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kapetacom/codegen-target.git"
+    },
+    "private": false,
+    "publishConfig": {
+        "access": "public"
+    },
+    "keywords": [
+        "kapeta"
+    ],
+    "author": "Henrik Hofmeister <hh@kapeta.com>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/kapetacom/codegen-target/issues"
+    },
+    "homepage": "https://github.com/kapetacom/codegen-target#readme",
+    "prettier": "@kapeta/prettier-config",
+    "release": {
+        "plugins": [
+            "@semantic-release/commit-analyzer",
+            "@semantic-release/release-notes-generator",
+            [
+                "@semantic-release/changelog",
+                {
+                    "changelogFile": "CHANGELOG.md"
+                }
+            ],
+            "@semantic-release/npm",
+            "@semantic-release/github",
+            [
+                "@semantic-release/git",
+                {
+                    "assets": [
+                        "CHANGELOG.md",
+                        "package.json",
+                        "package-lock.json"
+                    ],
+                    "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+                }
+            ]
+        ]
+    },
+    "dependencies": {
+        "handlebars": "4.1.2",
+        "lodash": "4.17.11",
+        "yaml": "^2.1.2"
+    },
+    "devDependencies": {
+        "@kapeta/schemas": "^0.0.35",
+        "@types/lodash": "^4.14.192",
+        "@types/node": "^18.15.11",
+        "typescript": "^5.0.4",
+        "@tsconfig/node18": "^1.0.1",
+        "@kapeta/eslint-config": "^0.6.0",
+        "@kapeta/prettier-config": "^0.6.0",
+        "eslint": "^8.42.0",
+        "eslint-config-prettier": "^8.8.0",
+        "prettier": "^2.8.8"
+    }
 }

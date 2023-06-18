@@ -1,32 +1,10 @@
 {
-  "compilerOptions": {
-    "module": "CommonJS",
-    "target": "es6",
-    "jsx": "react",
-    "lib": [
-      "ESNext",
-      "ES2021"
-    ],
-    "sourceMap": true,
-    "allowJs": true,
-    "outDir": "./dist",
-    "declarationDir": "./types",
-    "declaration": true,
-    "strict": false,
-    "moduleResolution": "node",
-    "useDefineForClassFields": true,
-    "strictNullChecks": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "forceConsistentCasingInFileNames": true,
-    "sourceRoot": "./src"
-  },
-  "exclude": ["node_modules", "types", "dist"],
-  "include": [
-    "src/index.ts",
-    "src/test-helpers/yaml-transform.js"
-  ]
+    "extends": "@tsconfig/node18/tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "declaration": true,
+        "esModuleInterop": true
+    },
+    "exclude": ["node_modules", "types", "dist"],
+    "include": ["src/index.ts"]
 }

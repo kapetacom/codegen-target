@@ -2,11 +2,11 @@ import * as _ from 'lodash';
 import * as Path from 'path';
 import * as FS from 'fs';
 import * as Template from './Template';
-import {CodeFormatter} from './CodeFormatter';
-import {GeneratedAsset, GeneratedFile} from "./types";
+import { CodeFormatter } from './CodeFormatter';
+import { GeneratedAsset, GeneratedFile, SourceFile } from './types';
 
-function walkDirectory(dir:string) {
-    let results:string[] = [];
+function walkDirectory(dir: string) {
+    let results: string[] = [];
 
     const files = FS.readdirSync(dir);
 
@@ -34,13 +34,13 @@ export class Target {
     private readonly _baseDir: string;
     private readonly _formatter: CodeFormatter;
 
-    constructor(options:object, baseDir:string, formatter?:CodeFormatter) {
+    constructor(options: object, baseDir: string, formatter?: CodeFormatter) {
         this.options = options;
         this._baseDir = baseDir;
         this._formatter = formatter || new CodeFormatter();
     }
 
-    protected _createTemplateEngine(data:any, context:any): Template.TemplateType {
+    protected _createTemplateEngine(data: any, context: any): Template.TemplateType {
         return Template.create(data, context, this._formatter);
     }
 
@@ -49,16 +49,22 @@ export class Target {
      *
      * Override this method to change templating engine
      */
-    protected _render(templateEngine: typeof Handlebars, sourceFile: string, templateSource: string, data: any, context: any):string {
+    protected _render(
+        templateEngine: typeof Handlebars,
+        sourceFile: string,
+        templateSource: string,
+        data: any,
+        context: any
+    ): string {
         try {
             const template = templateEngine.compile(templateSource);
 
             return template({
                 options: this.options,
                 data,
-                context
+                context,
             });
-        } catch(e) {
+        } catch (e: any) {
             throw new Error('Failed to compile source:' + sourceFile + '. ' + e.stack);
         }
     }
@@ -69,7 +75,7 @@ export class Target {
      * Override to do post processing of the generated code - e.g. use "prettier" to format it
      *
      */
-    protected _postProcessCode(filename:string, code:string):string {
+    protected _postProcessCode(filename: string, code: string): string {
         return code;
     }
 
@@ -82,8 +88,7 @@ export class Target {
      * does not write anything to disk.
      *
      */
-    public generate(data:any, context:any):GeneratedFile[] {
-
+    public generate(data: any, context: any): GeneratedFile[] {
         const [template, version] = data.kind.toLowerCase().split(':');
 
         if (!template) {
@@ -101,14 +106,16 @@ export class Target {
 
         const templateEngine = this._createTemplateEngine(data, context);
 
-        walkDirectory(rootTemplateDir).map(file => {
-            return {id: file.substring(rootTemplateDir.length + 1), file}
-        }).forEach(info => {
-            const content = FS.readFileSync(info.file).toString();
-            templateEngine.registerPartial(info.id, content);
-        });
+        walkDirectory(rootTemplateDir)
+            .map((file) => {
+                return { id: file.substring(rootTemplateDir.length + 1), file };
+            })
+            .forEach((info) => {
+                const content = FS.readFileSync(info.file).toString();
+                templateEngine.registerPartial(info.id, content);
+            });
 
-        const out:GeneratedFile[] = [];
+        const out: GeneratedFile[] = [];
 
         templateFiles.forEach((fileName) => {
             const templateSource = FS.readFileSync(fileName).toString();
@@ -127,16 +134,17 @@ export class Target {
         return out;
     }
 
-    public async preprocess(data:any) {
+    public async preprocess(data: any) {
         return data;
     }
 
+    public async postprocess(targetDir: string, files: GeneratedAsset[]) {}
 
-    public async postprocess(targetDir:string, files:GeneratedAsset[]) {
-
+    public mergeFile(sourceFile: SourceFile, targetFile: GeneratedFile): GeneratedFile {
+        throw new Error('Could not merge changes for file: ' + sourceFile.filename + '. Merge not supported.');
     }
 
-    private _parseCode(filename, sourceCode):null|GeneratedFile {
+    private _parseCode(filename: string, sourceCode: string): null | GeneratedFile {
         let mode = 'write-always';
         let permissions = '644';
         const lines = sourceCode.split(/\n/g).filter((line) => {
@@ -168,8 +176,7 @@ export class Target {
             filename: filename,
             content: this._postProcessCode(filename, lines.join('\n')),
             mode,
-            permissions
+            permissions,
         };
     }
-
 }
