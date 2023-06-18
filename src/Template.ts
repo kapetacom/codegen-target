@@ -1,15 +1,14 @@
 import Handlebars from 'handlebars';
 import _ from 'lodash';
-import {HelperOptions} from "handlebars";
-import {CodeFormatter, TypeLike} from "./CodeFormatter";
+import { HelperOptions } from 'handlebars';
+import { CodeFormatter, TypeLike } from './CodeFormatter';
+import { Entity, Kind } from '@kapeta/schemas';
 
 Handlebars.noConflict(); //Remove from global space
 
-
 export type TemplateType = typeof Handlebars;
 
-function findKindCaseInsensitive(type:string) {
-
+function findKindCaseInsensitive(type: string) {
     type = type.toLowerCase();
 
     let wildcard = false;
@@ -18,9 +17,8 @@ function findKindCaseInsensitive(type:string) {
         wildcard = true;
     }
 
-    return (data) => {
-        if (!data ||
-            !data.kind) {
+    return (data: Kind) => {
+        if (!data || !data.kind) {
             return false;
         }
 
@@ -31,11 +29,11 @@ function findKindCaseInsensitive(type:string) {
         const [name] = data.kind.split(':');
         if (type.indexOf(':') > -1) {
             //Requested type contains version
-            return (type.toLowerCase() === data.kind.toLowerCase());
+            return type.toLowerCase() === data.kind.toLowerCase();
         }
 
-        return (type.toLowerCase() === name.toLowerCase());
-    }
+        return type.toLowerCase() === name.toLowerCase();
+    };
 }
 /**
  *
@@ -43,7 +41,7 @@ function findKindCaseInsensitive(type:string) {
  * @param context {object}
  * @param {CodeFormatter} codeFormatter
  */
-export function create(data:any, context:any, codeFormatter:CodeFormatter):TemplateType {
+export function create(data: any, context: any, codeFormatter: CodeFormatter): TemplateType {
     const handlebarInstance = Handlebars.create();
 
     if (!data) {
@@ -56,65 +54,63 @@ export function create(data:any, context:any, codeFormatter:CodeFormatter):Templ
 
     /** Utils **/
 
-    handlebarInstance.registerHelper('lowercase', function(typename) {
+    handlebarInstance.registerHelper('lowercase', function (typename) {
         return new handlebarInstance.SafeString(typename.toLowerCase());
     });
 
-    handlebarInstance.registerHelper('uppercase', function(typename) {
+    handlebarInstance.registerHelper('uppercase', function (typename) {
         return new handlebarInstance.SafeString(typename.toUpperCase());
     });
 
-    handlebarInstance.registerHelper('default', function(value, defaultValue) {
+    handlebarInstance.registerHelper('default', function (value, defaultValue) {
         return new handlebarInstance.SafeString(value ?? defaultValue);
     });
 
-    handlebarInstance.registerHelper('json', function(value) {
+    handlebarInstance.registerHelper('json', function (value) {
         return new handlebarInstance.SafeString(JSON.stringify(value));
     });
 
-    handlebarInstance.registerHelper('json-string', function(value) {
+    handlebarInstance.registerHelper('json-string', function (value) {
         return new handlebarInstance.SafeString(JSON.stringify(JSON.stringify(value)));
     });
 
-    handlebarInstance.registerHelper('assetName', function(typename) {
-        if (typename.indexOf("/") === -1) {
+    handlebarInstance.registerHelper('assetName', function (typename) {
+        if (typename.indexOf('/') === -1) {
             return new handlebarInstance.SafeString(typename);
         }
-        return new handlebarInstance.SafeString(typename.split("/")[1]);
+        return new handlebarInstance.SafeString(typename.split('/')[1]);
     });
 
-    handlebarInstance.registerHelper('dashify', function(typename) {
+    handlebarInstance.registerHelper('dashify', function (typename) {
         return new handlebarInstance.SafeString(typename.replace(/_/g, '-').replace(/\//g, '-'));
     });
 
-    handlebarInstance.registerHelper('curly', function(object, open) {
+    handlebarInstance.registerHelper('curly', function (object, open) {
         return open ? '{' : '}';
     });
 
-    handlebarInstance.registerHelper('eachProperty', function(items:any, options:HelperOptions) {
-        const out:string[] = [];
+    handlebarInstance.registerHelper('eachProperty', function (items: any, options: HelperOptions) {
+        const out: string[] = [];
 
-        _.forEach(items, function(item, key) {
-            out.push(options.fn({...item, propertyId: key}));
+        _.forEach(items, function (item, key) {
+            out.push(options.fn({ ...item, propertyId: key }));
         });
 
         return out.join('');
     });
 
-
-
-    handlebarInstance.registerHelper('switch', function(value, options:HelperOptions) {
+    handlebarInstance.registerHelper('switch', function (this: any, value, options: HelperOptions) {
         this.switch_value = value;
         return options.fn(this);
     });
 
-    handlebarInstance.registerHelper('case', function(value, options:HelperOptions) {
+    handlebarInstance.registerHelper('case', function (this: any, value, options: HelperOptions) {
         if (value === this.switch_value) {
             return options.fn(this);
         }
     });
 
-    handlebarInstance.registerHelper('consumes', function(type, options:HelperOptions) {
+    handlebarInstance.registerHelper('consumes', function (this: any, type, options: HelperOptions) {
         if (!context.spec.consumers) {
             return '';
         }
@@ -122,10 +118,9 @@ export function create(data:any, context:any, codeFormatter:CodeFormatter):Templ
         if (_.find(context.spec.consumers, findKindCaseInsensitive(type))) {
             return options.fn(this);
         }
-
     });
 
-    handlebarInstance.registerHelper('provides', function(type, options:HelperOptions) {
+    handlebarInstance.registerHelper('provides', function (this: any, type, options: HelperOptions) {
         if (!context.spec.providers) {
             return '';
         }
@@ -135,77 +130,73 @@ export function create(data:any, context:any, codeFormatter:CodeFormatter):Templ
         }
     });
 
-    handlebarInstance.registerHelper('consumers-of-type', function(type, options:HelperOptions) {
+    handlebarInstance.registerHelper('consumers-of-type', function (type, options: HelperOptions) {
         if (!context.spec.consumers) {
             return '';
         }
 
-        const out:string[] = [];
+        const out: string[] = [];
         _.filter(context.spec.consumers, findKindCaseInsensitive(type)).forEach((consumer) => {
             out.push(options.fn(consumer));
         });
         return out.join('\n');
     });
 
-    handlebarInstance.registerHelper('providers-of-type', function(type, options:HelperOptions) {
+    handlebarInstance.registerHelper('providers-of-type', function (type, options: HelperOptions) {
         if (!context.spec.providers) {
             return '';
         }
-        const out:string[] = [];
+        const out: string[] = [];
         _.filter(context.spec.providers, findKindCaseInsensitive(type)).forEach((provider) => {
             out.push(options.fn(provider));
         });
         return out.join('\n');
     });
 
-
     /** Code formatters **/
 
-    handlebarInstance.registerHelper('type', function(typename) {
+    handlebarInstance.registerHelper('type', function (typename) {
         return new handlebarInstance.SafeString(codeFormatter.$type(typename));
     });
 
-    handlebarInstance.registerHelper('constant', function(typename) {
+    handlebarInstance.registerHelper('constant', function (typename) {
         return new handlebarInstance.SafeString(codeFormatter.$constant(typename));
     });
 
-    handlebarInstance.registerHelper('comment', function(typename) {
+    handlebarInstance.registerHelper('comment', function (typename) {
         return new handlebarInstance.SafeString(codeFormatter.$comment(typename));
     });
 
-    handlebarInstance.registerHelper('namespace', function(typename) {
+    handlebarInstance.registerHelper('namespace', function (typename) {
         return new handlebarInstance.SafeString(codeFormatter.$namespace(typename));
     });
 
-    handlebarInstance.registerHelper('variable', function(typename) {
+    handlebarInstance.registerHelper('variable', function (typename) {
         return new handlebarInstance.SafeString(codeFormatter.$variable(typename));
     });
 
-    handlebarInstance.registerHelper('string', function(typename) {
+    handlebarInstance.registerHelper('string', function (typename) {
         return new handlebarInstance.SafeString(codeFormatter.$string(typename));
     });
 
-    handlebarInstance.registerHelper('method', function(typename) {
+    handlebarInstance.registerHelper('method', function (typename) {
         return new handlebarInstance.SafeString(codeFormatter.$method(typename));
     });
 
-    handlebarInstance.registerHelper('returnType', function(typename:TypeLike) {
+    handlebarInstance.registerHelper('returnType', function (typename: TypeLike) {
         return new handlebarInstance.SafeString(codeFormatter.$returnType(typename));
     });
 
-    handlebarInstance.registerHelper('getter', function(typename, propertyId) {
+    handlebarInstance.registerHelper('getter', function (typename, propertyId) {
         return new handlebarInstance.SafeString(codeFormatter.$getter(typename, propertyId));
     });
 
-    handlebarInstance.registerHelper('setter', function(typename, propertyId) {
+    handlebarInstance.registerHelper('setter', function (typename, propertyId) {
         return new handlebarInstance.SafeString(codeFormatter.$setter(typename, propertyId));
     });
 
-    function isDTO(type) {
-        if (!type ||
-            !context.spec ||
-            !context.spec.entities ||
-            !context.spec.entities.types) {
+    function isDTO(type: any) {
+        if (!type || !context.spec || !context.spec.entities || !context.spec.entities.types) {
             return false;
         }
 
@@ -218,17 +209,17 @@ export function create(data:any, context:any, codeFormatter:CodeFormatter):Templ
         }
 
         type = type.toLowerCase();
-        return context.spec.entities.types.some((entity) => {
-            return (entity && entity.type === 'dto' && entity.name && entity.name.toLowerCase() === type);
+        return context.spec.entities.types.some((entity: Entity) => {
+            return entity && entity.type === 'dto' && entity.name && entity.name.toLowerCase() === type;
         });
     }
 
-    handlebarInstance.registerHelper('eachTypeReference', function(entity, options:HelperOptions) {
-        const includeNonDTORefs = options?.hash && !!options.hash['all']
-        const found:string[] = [];
-        const out:string[] = [];
+    handlebarInstance.registerHelper('eachTypeReference', function (entity, options: HelperOptions) {
+        const includeNonDTORefs = options?.hash && !!options.hash['all'];
+        const found: string[] = [];
+        const out: string[] = [];
 
-        function process(entity:any|any[]) {
+        function process(entity: any | any[]) {
             if (!entity) {
                 return;
             }
@@ -254,7 +245,7 @@ export function create(data:any, context:any, codeFormatter:CodeFormatter):Templ
                 }
 
                 found.push(type);
-                out.push(options.fn({name: type}));
+                out.push(options.fn({ name: type }));
             }
 
             if (typeof entity === 'object') {
@@ -267,23 +258,21 @@ export function create(data:any, context:any, codeFormatter:CodeFormatter):Templ
         return new handlebarInstance.SafeString(out.join(''));
     });
 
-    handlebarInstance.registerHelper('arguments', function(items, options:HelperOptions) {
-        const out:string[] = [];
+    handlebarInstance.registerHelper('arguments', function (items, options: HelperOptions) {
+        const out: string[] = [];
 
-        _.forEach(items, function(item, key) {
+        _.forEach(items, function (item, key) {
             item['argumentName'] = key;
-            out.push(options.fn(item).trim()
-                .replace(/\n/gm, ' ')
-                .replace(/\s+/gm, ' '));
+            out.push(options.fn(item).trim().replace(/\n/gm, ' ').replace(/\s+/gm, ' '));
         });
 
         return codeFormatter.$arguments(out);
     });
 
-    handlebarInstance.registerHelper('methods', function(items, options:HelperOptions) {
-        const out:string[] = [];
+    handlebarInstance.registerHelper('methods', function (items, options: HelperOptions) {
+        const out: string[] = [];
 
-        _.forEach(items, function(item, key) {
+        _.forEach(items, function (item, key) {
             item['methodName'] = key;
             out.push(options.fn(item));
         });
@@ -294,7 +283,6 @@ export function create(data:any, context:any, codeFormatter:CodeFormatter):Templ
     return handlebarInstance;
 }
 
-export function SafeString(string:string):Handlebars.SafeString {
+export function SafeString(string: string): Handlebars.SafeString {
     return new Handlebars.SafeString(string);
 }
-
