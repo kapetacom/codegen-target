@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/kapetacom/codegen-target/compare/v1.0.1...v1.0.2) (2023-09-19)
+
+
+### Bug Fixes
+
+* If string is null/undefined just return empty string ([#7](https://github.com/kapetacom/codegen-target/issues/7)) ([272d0e6](https://github.com/kapetacom/codegen-target/commit/272d0e628380b0a4641e8c4216e7a03046cfca2c))
+
 ## [1.0.1](https://github.com/kapetacom/codegen-target/compare/v1.0.0...v1.0.1) (2023-06-18)
 
 
