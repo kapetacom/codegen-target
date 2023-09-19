@@ -23,14 +23,23 @@ export class CodeFormatter {
     }
 
     $comment(value: string): string {
+        if (!value) {
+            return '';
+        }
         return value;
     }
 
     $method(value: string): string {
+        if (!value) {
+            return '';
+        }
         return value;
     }
 
     $namespace(value: string): string {
+        if (!value) {
+            return '';
+        }
         return value.toLowerCase();
     }
 
@@ -53,16 +62,25 @@ export class CodeFormatter {
     }
 
     $constant(value: string): string {
+        if (!value) {
+            return '';
+        }
         return value.toUpperCase();
     }
 
     $variable(value: string): string {
+        if (!value) {
+            return '';
+        }
         const typeName = this.$type(value);
 
         return typeName.substring(0, 1).toLowerCase() + typeName.substring(1);
     }
 
     $string(value: string): string {
+        if (!value) {
+            return '';
+        }
         return value;
     }
 
