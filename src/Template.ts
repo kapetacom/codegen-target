@@ -100,12 +100,12 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
     });
 
     handlebarInstance.registerHelper('switch', function (this: any, value, options: HelperOptions) {
-        this.switch_value = value;
+        this.switch_value = value.toString();
         return options.fn(this);
     });
 
     handlebarInstance.registerHelper('case', function (this: any, value, options: HelperOptions) {
-        if (value === this.switch_value) {
+        if (value.toString() === this.switch_value) {
             return options.fn(this);
         }
     });
