@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/kapetacom/codegen-target/compare/v1.0.2...v1.0.3) (2023-10-16)
+
+
+### Bug Fixes
+
+* Handle switch on non-strings (e.g. SafeString) ([#8](https://github.com/kapetacom/codegen-target/issues/8)) ([d209405](https://github.com/kapetacom/codegen-target/commit/d209405ce7f60eccf7a03773d6193eaa36da8797))
+
 ## [1.0.2](https://github.com/kapetacom/codegen-target/compare/v1.0.1...v1.0.2) (2023-09-19)
 
 
