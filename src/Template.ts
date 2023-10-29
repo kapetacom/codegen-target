@@ -1,3 +1,8 @@
+/**
+ * Copyright 2023 Kapeta Inc.
+ * SPDX-License-Identifier: MIT
+ */
+
 import Handlebars from 'handlebars';
 import _ from 'lodash';
 import { HelperOptions } from 'handlebars';
