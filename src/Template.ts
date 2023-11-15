@@ -117,12 +117,14 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
 
     handlebarInstance.registerHelper('consumes', function (this: any, type, options: HelperOptions) {
         if (!context.spec.consumers) {
-            return '';
+            return options.inverse(this);
         }
 
         if (_.find(context.spec.consumers, findKindCaseInsensitive(type))) {
             return options.fn(this);
         }
+
+        return options.inverse(this);
     });
 
     handlebarInstance.registerHelper('provides', function (this: any, type, options: HelperOptions) {

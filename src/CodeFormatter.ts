@@ -53,7 +53,7 @@ export class CodeFormatter {
     }
 
     $methods(values: string[]): string {
-        return values.join('\n\n');
+        return values.join('\n');
     }
 
     $type(value?: TypeLike): string {

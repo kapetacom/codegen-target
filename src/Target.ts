@@ -130,9 +130,9 @@ export class Target {
 
             const filename = fileName.substring(kindTemplateDir.length + 1);
 
-            const file = this._parseCode(filename, sourceCode);
-            if (file) {
-                out.push(file);
+            const files = this._parseCode(filename, sourceCode);
+            if (files.length) {
+                out.push(...files);
             }
         });
 
@@ -149,39 +149,57 @@ export class Target {
         throw new Error('Could not merge changes for file: ' + sourceFile.filename + '. Merge not supported.');
     }
 
-    private _parseCode(filename: string, sourceCode: string): null | GeneratedFile {
-        let mode = 'write-always';
-        let permissions = '644';
-        const lines = sourceCode.split(/\n/g).filter((line) => {
-            if (line.indexOf('#FILENAME:') > -1) {
-                filename = line.split(/#FILENAME:/)[1];
-                if (filename.indexOf(':') > -1) {
-                    [filename, mode, permissions] = filename.split(/:/g);
-                }
+    private _parseCode(filename: string, sourceCode: string): GeneratedFile[] {
+        const files: GeneratedFile[] = [];
+        let currentFileContent: string[] = [];
+        let currentFilename = filename;
+        let currentMode = 'write-always';
+        let currentPermissions = '644';
 
-                if (!permissions) {
-                    permissions = '644';
-                }
-
-                if (!mode) {
-                    mode = 'write-always';
-                }
-
-                return false;
+        const processCurrentFile = () => {
+            if (currentMode === 'skip') {
+                return null;
             }
 
-            return true;
+            // If file content is empty, skip it
+            if (!currentFileContent.some((line) => line.trim())) {
+                return null;
+            }
+
+            if (currentFileContent.length > 0) {
+                files.push({
+                    filename: currentFilename,
+                    content: this._postProcessCode(currentFilename, currentFileContent.join('\n')),
+                    mode: currentMode,
+                    permissions: currentPermissions,
+                });
+                currentFileContent = [];
+            }
+        };
+
+        sourceCode.split(/\n/g).forEach((line) => {
+            if (line.indexOf('#FILENAME:') > -1) {
+                processCurrentFile(); // Process the previous file content
+
+                const filenameModePermissions = line.split('#FILENAME:')[1];
+                if (filenameModePermissions) {
+                    [currentFilename, currentMode, currentPermissions] = filenameModePermissions.split(/:/g);
+                    if (!currentMode) {
+                        currentMode = 'write-always';
+                    }
+                    if (!currentPermissions) {
+                        currentPermissions = '644';
+                    }
+                } else {
+                    console.error('Invalid file header format in line: ' + line);
+                }
+            } else {
+                currentFileContent.push(line);
+            }
         });
 
-        if (mode === 'skip') {
-            return null;
-        }
+        processCurrentFile(); // Ensure last file is processed
 
-        return {
-            filename: filename,
-            content: this._postProcessCode(filename, lines.join('\n')),
-            mode,
-            permissions,
-        };
+        return files;
     }
 }
