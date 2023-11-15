@@ -158,12 +158,12 @@ export class Target {
 
         const processCurrentFile = () => {
             if (currentMode === 'skip') {
-                return null;
+                return;
             }
 
             // If file content is empty, skip it
             if (!currentFileContent.some((line) => line.trim())) {
-                return null;
+                return;
             }
 
             if (currentFileContent.length > 0) {
