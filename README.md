@@ -137,8 +137,7 @@ Default behaviour is to only include data structures / entities. If you want to 
 
 #### More
 
-There are more formatters and you can add additional ones specific to the language target you're building. See the CodeFormatter class. Each method in the codeformatter is available in the template without the $. 
-E.g. ```CodeFormatter::$returnType``` is available as
+There are more formatters and you can add additional ones specific to the language target you're building. See the CodeFormatter class. Each method in the codeformatter is available in the template without the `$`. E.g. `CodeFormatter::$returnType` is available as
 
 ```handlebars
 {{returnType data.value}}
