@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/kapetacom/codegen-target/compare/v1.0.3...v1.1.0) (2023-11-15)
+
+
+### Bug Fixes
+
+* Return undefined instead of null when skipping ([fb2fdb4](https://github.com/kapetacom/codegen-target/commit/fb2fdb49540007f5351dbfe3230a370a0591bcde))
+
+
+### Features
+
+* Add support for multi file generation from hbs template ([69d39eb](https://github.com/kapetacom/codegen-target/commit/69d39eb720431828e94b9e85b454408320b4b1c2))
+
 ## [1.0.3](https://github.com/kapetacom/codegen-target/compare/v1.0.2...v1.0.3) (2023-10-16)
 
 
