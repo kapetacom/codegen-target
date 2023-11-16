@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/kapetacom/codegen-target/compare/v1.1.0...v1.2.0) (2023-11-16)
+
+
+### Features
+
+* Check for built-in types when iterating dependencies ([#11](https://github.com/kapetacom/codegen-target/issues/11)) ([9fdbc9f](https://github.com/kapetacom/codegen-target/commit/9fdbc9f99be4c0695e686961fa6ac57feea06097))
+
 # [1.1.0](https://github.com/kapetacom/codegen-target/compare/v1.0.3...v1.1.0) (2023-11-15)
 
 
