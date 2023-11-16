@@ -1,1 +1,8 @@
+node/*
+web/*
 dist/*
+test/resources/*
+templates/*
+.github/*
+README.md
+CHANGELOG.md

@@ -75,13 +75,13 @@
         "yaml": "^2.1.2"
     },
     "devDependencies": {
-        "@kapeta/schemas": "^0.0.35",
+        "@kapeta/schemas": "<2",
         "@types/lodash": "^4.14.192",
         "@types/node": "^18.15.11",
         "typescript": "^5.0.4",
         "@tsconfig/node18": "^1.0.1",
         "@kapeta/eslint-config": "^0.6.0",
-        "@kapeta/prettier-config": "^0.6.0",
+        "@kapeta/prettier-config": "^0.6.2",
         "eslint": "^8.42.0",
         "eslint-config-prettier": "^8.8.0",
         "prettier": "^2.8.8"

@@ -7,7 +7,7 @@ import Handlebars from 'handlebars';
 import _ from 'lodash';
 import { HelperOptions } from 'handlebars';
 import { CodeFormatter, TypeLike } from './CodeFormatter';
-import { Entity, Kind } from '@kapeta/schemas';
+import { Entity, isBuiltInType, Kind } from '@kapeta/schemas';
 
 Handlebars.noConflict(); //Remove from global space
 
@@ -226,6 +226,39 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         const found: string[] = [];
         const out: string[] = [];
 
+        function maybeRenderType(type: string) {
+            if (type.endsWith('[]')) {
+                //Get rid of array indicator
+                type = type.substring(0, type.length - 2);
+            }
+
+            if (type.includes('<')) {
+                // Handle generics
+                let [typeName, args] = type.split('<');
+                const genericTypes = args.substring(0, args.length - 1).split(',');
+                genericTypes.forEach((genericType) => {
+                    maybeRenderType(genericType);
+                });
+                type = typeName.trim();
+            }
+
+            if (type === 'any' || type === 'Map' || type === 'Set' || isBuiltInType({ type })) {
+                // Special built-in type
+                return;
+            }
+
+            if (!includeNonDTORefs && !isDTO(type)) {
+                return;
+            }
+
+            if (found.indexOf(type) > -1) {
+                return;
+            }
+
+            found.push(type);
+            out.push(options.fn({ name: type }));
+        }
+
         function process(entity: any | any[]) {
             if (!entity) {
                 return;
@@ -237,22 +270,8 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             }
 
             if (entity?.ref) {
-                let type = entity.ref;
-                if (type.endsWith('[]')) {
-                    //Get rid of array indicator
-                    type = type.substring(0, type.length - 2);
-                }
-
-                if (!includeNonDTORefs && !isDTO(type)) {
-                    return;
-                }
-
-                if (found.indexOf(type) > -1) {
-                    return;
-                }
-
-                found.push(type);
-                out.push(options.fn({ name: type }));
+                maybeRenderType(entity.ref);
+                return;
             }
 
             if (typeof entity === 'object') {
