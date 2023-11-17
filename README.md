@@ -4,9 +4,11 @@ This module provides the SDK for implementing code generating targets
 
 ## Template Syntax
 
-Other than normal handlebars syntax - the codegen will handle the first line of the output rendered for any template specially if that line starts with `#FILENAME:`
+Other than normal Handlebars syntax, the codegen uses the `#FILENAME:` syntax in template output to define the file path and file permissions for the generated file(s). This allows each template to determine the path and file permissions for the file(s) from within the template itself.
 
-This is to allow each template to determine its file path and file permissions from within the template itself.
+### Filename Syntax
+
+At the start of any template output, you can specify `#FILENAME:` followed by the file path and optional parameters. This line controls the generation of single or multiple files.
 
 An example could be:
 
@@ -23,15 +25,41 @@ The syntax of the filename line is:
 #FILENAME:<file path>[:<write mode=write-always>[:<file permissions=644>]]
 ```
 
-Where
+Where:
 
--   `file path`: is simply the path of the file.
--   `write mode`: Defaults to `write-always`. Can be one of the following:
-    -   `create-only`: Only write the file if it doesn't exist. Makes sense for generating boilerplate code that the user will need to modify - just to help speed things along.
-    -   `write-always`: If used will always overwrite the file - which also means any user changes will be overwritten. These files should not be adjusted by users.
-    -   `skip`: Do not generate the file
-    -   `merge`: Attempt to merge generated code with any changes made by user. Currently not supported.
--   `file permissions`: the chmod value to apply to the file. Useful if you need to generate executable files. Defaults to `644`
+- `file path`: The path of the file.
+- `write mode`: Defaults to `write-always`. Options include:
+  - `create-only`: Only writes the file if it doesn't exist. Ideal for generating boilerplate code that the user will need to modify to help speed things along.
+  - `write-always`: Always overwrites the file, meaning any user changes will be overwritten. These files should not be adjusted by users.
+  - `skip`: Does not generate the file.
+  - `merge`: Attempts to merge generated code with any changes made by the user. Currently not supported.
+- `file permissions`: The chmod value to apply to the file, useful if you need to generate executable files. Defaults to 644.
+
+### Single File Generation
+
+For generating a single file, the `#FILENAME:` syntax must be the first line of the template. The rest of the template will be the content of the file.
+
+Example:
+
+```javascript
+#FILENAME:<file path>
+...template content...
+```
+
+### Multiple File Generation
+
+The `#FILENAME:` syntax can also be used multiple times (or, for example, within loop constructs) to generate multiple files based on the loop's context.
+
+Syntax within a loop:
+
+```javascript
+{#each [context]}
+#FILENAME:<file path based on context>
+    ...template content...
+{{/each}}
+```
+
+This enables the dynamic generation of file paths and contents based on the context of each iteration within the loop.
 
 ### Built-In Helpers
 
