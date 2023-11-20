@@ -9,6 +9,7 @@ import * as FS from 'fs';
 import * as Template from './Template';
 import { CodeFormatter } from './CodeFormatter';
 import { GeneratedAsset, GeneratedFile, SourceFile } from './types';
+import { parseKapetaUri } from '@kapeta/nodejs-utils';
 
 function walkDirectory(dir: string) {
     let results: string[] = [];
@@ -94,7 +95,8 @@ export class Target {
      *
      */
     public generate(data: any, context: any): GeneratedFile[] {
-        const [template, version] = data.kind.toLowerCase().split(':');
+        const kindUri = parseKapetaUri(data.kind);
+        const template = kindUri.fullName;
 
         if (!template) {
             throw new Error('No template found for kind: ' + data.kind);
