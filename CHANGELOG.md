@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/kapetacom/codegen-target/compare/v1.2.0...v1.2.1) (2023-11-20)
+
+
+### Bug Fixes
+
+* Issues dealing with kapeta uri strings ([#13](https://github.com/kapetacom/codegen-target/issues/13)) ([652a7e9](https://github.com/kapetacom/codegen-target/commit/652a7e947a9453a2cd6fcc5ed69e8a30da912404))
+
 # [1.2.0](https://github.com/kapetacom/codegen-target/compare/v1.1.0...v1.2.0) (2023-11-16)
 
 
