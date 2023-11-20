@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { HelperOptions } from 'handlebars';
 import { CodeFormatter, TypeLike } from './CodeFormatter';
 import { Entity, isBuiltInType, Kind } from '@kapeta/schemas';
+import { normalizeKapetaUri, parseKapetaUri } from '@kapeta/nodejs-utils';
 
 Handlebars.noConflict(); //Remove from global space
 
@@ -27,17 +28,18 @@ function findKindCaseInsensitive(type: string) {
             return false;
         }
 
+        const kindUri = parseKapetaUri(data.kind);
+
         if (wildcard) {
-            return data.kind.toLowerCase().startsWith(type);
+            return kindUri.fullName.startsWith(type);
         }
 
-        const [name] = data.kind.split(':');
         if (type.indexOf(':') > -1) {
             //Requested type contains version
-            return type.toLowerCase() === data.kind.toLowerCase();
+            return normalizeKapetaUri(type) === kindUri.toNormalizedString();
         }
 
-        return type.toLowerCase() === name.toLowerCase();
+        return parseKapetaUri(type).fullName === kindUri.fullName;
     };
 }
 /**
