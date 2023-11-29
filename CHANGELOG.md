@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/kapetacom/codegen-target/compare/v1.2.1...v1.3.0) (2023-11-29)
+
+
+### Features
+
+* Adds helper for checking if a certain type is referenced ([#14](https://github.com/kapetacom/codegen-target/issues/14)) ([cdd9198](https://github.com/kapetacom/codegen-target/commit/cdd91984331ac5966c0e55fb311600f14b0efaf9))
+
 ## [1.2.1](https://github.com/kapetacom/codegen-target/compare/v1.2.0...v1.2.1) (2023-11-20)
 
 
