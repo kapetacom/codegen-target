@@ -223,28 +223,40 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         });
     }
 
+    const BUILT_IN_REFS = [
+        'Instance', 'InstanceProvider'
+    ]
+
+    function normalizeType(type:string):string[] {
+        let types:string[] = [];
+        if (type.endsWith('[]')) {
+            //Get rid of array indicator
+            type = type.substring(0, type.length - 2);
+        }
+
+        if (type.includes('<')) {
+            // Handle generics
+            let [typeName, args] = type.split('<');
+            const genericTypes = args.substring(0, args.length - 1).split(',');
+            types = [...genericTypes];
+            type = typeName.trim();
+        }
+
+        return [type, ...types];
+    }
+
     handlebarInstance.registerHelper('eachTypeReference', function (entity, options: HelperOptions) {
         const includeNonDTORefs = options?.hash && !!options.hash['all'];
         const found: string[] = [];
         const out: string[] = [];
 
         function maybeRenderType(type: string) {
-            if (type.endsWith('[]')) {
-                //Get rid of array indicator
-                type = type.substring(0, type.length - 2);
-            }
-
-            if (type.includes('<')) {
-                // Handle generics
-                let [typeName, args] = type.split('<');
-                const genericTypes = args.substring(0, args.length - 1).split(',');
-                genericTypes.forEach((genericType) => {
-                    maybeRenderType(genericType);
-                });
-                type = typeName.trim();
-            }
-
             if (type === 'any' || type === 'Map' || type === 'Set' || isBuiltInType({ type })) {
+                // Special built-in type
+                return;
+            }
+
+            if (BUILT_IN_REFS.includes(type)) {
                 // Special built-in type
                 return;
             }
@@ -272,7 +284,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             }
 
             if (entity?.ref) {
-                maybeRenderType(entity.ref);
+                normalizeType(entity.ref).forEach(maybeRenderType);
                 return;
             }
 
@@ -284,6 +296,39 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         process(entity);
 
         return new handlebarInstance.SafeString(out.join(''));
+    });
+
+    handlebarInstance.registerHelper('hasTypeReference', function (this:any, entity:any, type:string, options: HelperOptions) {
+        let found: boolean = false;
+
+        function process(entity: any | any[]) {
+            if (!entity || found) {
+                return;
+            }
+
+            if (Array.isArray(entity)) {
+                entity.forEach(process);
+                return;
+            }
+
+            if (entity?.ref) {
+                if (normalizeType(entity.ref).includes(type)) {
+                    found = true;
+                }
+                return;
+            }
+
+            if (typeof entity === 'object') {
+                process(Object.values(entity));
+            }
+        }
+
+        process(entity);
+
+        if (found) {
+            return options.fn(this);
+        }
+        return options.inverse(this);
     });
 
     handlebarInstance.registerHelper('arguments', function (items, options: HelperOptions) {
