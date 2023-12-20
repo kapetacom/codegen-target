@@ -188,6 +188,11 @@ export class Target {
                     [currentFilename, currentMode, currentPermissions] = filenameModePermissions.split(/:/g);
                     if (!currentMode) {
                         currentMode = 'write-always';
+                    } else {
+                        const match= currentMode.match(/\b(merge|create-only|write-always)\b/);
+                        if (match) {
+                            currentMode = match[1];
+                        }
                     }
                     if (!currentPermissions) {
                         currentPermissions = '644';
