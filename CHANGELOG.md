@@ -1,3 +1,12 @@
+## [1.3.1](https://github.com/kapetacom/codegen-target/compare/v1.3.0...v1.3.1) (2023-12-20)
+
+
+### Bug Fixes
+
+* #FILENAME header in xml had 'merge-->' as mode ([ea2a7fb](https://github.com/kapetacom/codegen-target/commit/ea2a7fb5e23f491d918eee5af21e9a0ba537acf9))
+* add tests ([b69399a](https://github.com/kapetacom/codegen-target/commit/b69399ae4e966f4def20684ae1e8df0c85d2bd4b))
+* github actions ci pr build ([3df3146](https://github.com/kapetacom/codegen-target/commit/3df3146b526cb4194f92d812d710ca9f6848c851))
+
 # [1.3.0](https://github.com/kapetacom/codegen-target/compare/v1.2.1...v1.3.0) (2023-11-29)
 
 
