@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/kapetacom/codegen-target/compare/v1.4.0...v1.4.1) (2023-12-25)
+
+
+### Bug Fixes
+
+* Include prettier as non-dev dep ([b583edb](https://github.com/kapetacom/codegen-target/commit/b583edb6983e66e8f8c087eaf3575213e27775d4))
+
 # [1.4.0](https://github.com/kapetacom/codegen-target/compare/v1.3.1...v1.4.0) (2023-12-25)
 
 
