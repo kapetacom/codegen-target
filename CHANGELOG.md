@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/kapetacom/codegen-target/compare/v1.3.1...v1.4.0) (2023-12-25)
+
+
+### Features
+
+* Adds prettier wrapper for formatting code ([#16](https://github.com/kapetacom/codegen-target/issues/16)) ([73a88c9](https://github.com/kapetacom/codegen-target/commit/73a88c9315098d2355d26f7e32526ee29175f8f2))
+
 ## [1.3.1](https://github.com/kapetacom/codegen-target/compare/v1.3.0...v1.3.1) (2023-12-20)
 
 
