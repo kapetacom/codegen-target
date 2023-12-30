@@ -147,7 +147,7 @@ export class Target {
 
     public async postprocess(targetDir: string, files: GeneratedAsset[]) {}
 
-    public mergeFile(sourceFile: SourceFile, targetFile: GeneratedFile): GeneratedFile {
+    public mergeFile(sourceFile: SourceFile, targetFile: GeneratedFile, lastFile: GeneratedFile|null): GeneratedFile {
         throw new Error('Could not merge changes for file: ' + sourceFile.filename + '. Merge not supported.');
     }
 
