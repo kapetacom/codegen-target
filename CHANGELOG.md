@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/kapetacom/codegen-target/compare/v1.4.1...v1.5.0) (2023-12-30)
+
+
+### Features
+
+* Adds lastFile to mergeFile method ([#17](https://github.com/kapetacom/codegen-target/issues/17)) ([59393bf](https://github.com/kapetacom/codegen-target/commit/59393bfc33794431c3ca03ac274c776add1ccd44))
+
 ## [1.4.1](https://github.com/kapetacom/codegen-target/compare/v1.4.0...v1.4.1) (2023-12-25)
 
 
