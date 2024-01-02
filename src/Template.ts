@@ -209,7 +209,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             return false;
         }
 
-        if (type.ref) {
+        if (typeof type.ref === 'string') {
             type = type.ref;
         }
 
@@ -228,6 +228,9 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
     ]
 
     function normalizeType(type:string):string[] {
+        if (!type) {
+            return [];
+        }
         let types:string[] = [];
         if (type.endsWith('[]')) {
             //Get rid of array indicator
@@ -283,7 +286,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
                 return;
             }
 
-            if (entity?.ref) {
+            if (typeof entity?.ref === 'string') {
                 normalizeType(entity.ref).forEach(maybeRenderType);
                 return;
             }
@@ -311,7 +314,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
                 return;
             }
 
-            if (entity?.ref) {
+            if (typeof entity?.ref === 'string') {
                 if (normalizeType(entity.ref).includes(type)) {
                     found = true;
                 }
