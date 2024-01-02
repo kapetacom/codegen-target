@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/kapetacom/codegen-target/compare/v1.5.0...v1.5.1) (2024-01-02)
+
+
+### Bug Fixes
+
+* Make sure ref props are strings before treating as type ([#18](https://github.com/kapetacom/codegen-target/issues/18)) ([a303dab](https://github.com/kapetacom/codegen-target/commit/a303dabd379f7e8bd5eae7ba457d41f6f189cbf8))
+
 # [1.5.0](https://github.com/kapetacom/codegen-target/compare/v1.4.1...v1.5.0) (2023-12-30)
 
 
