@@ -334,12 +334,27 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return options.inverse(this);
     });
 
-    handlebarInstance.registerHelper('arguments', function (items, options: HelperOptions) {
-        const out: string[] = [];
+    handlebarInstance.registerHelper('arguments', function (items: {[key:string]:any}, options: HelperOptions) {
+        const args = Object.entries(items).map(([key, value], index) => {
+            return {
+                argumentName: key,
+                index,
+                ...value
+            }
+        });
 
-        _.forEach(items, function (item, key) {
-            item['argumentName'] = key;
-            out.push(options.fn(item).trim().replace(/\n/gm, ' ').replace(/\s+/gm, ' '));
+        args.sort((a, b) => {
+            if (a.optional && !b.optional) {
+                return 1;
+            }
+            if (!a.optional && b.optional) {
+                return -1;
+            }
+            return a.index - b.index;
+        })
+
+        const out = args.map((item) => {
+            return options.fn(item).trim().replace(/\n/gm, ' ').replace(/\s+/gm, ' ')
         });
 
         return codeFormatter.$arguments(out);
