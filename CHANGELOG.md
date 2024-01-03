@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/kapetacom/codegen-target/compare/v1.5.1...v1.5.2) (2024-01-03)
+
+
+### Bug Fixes
+
+* Make sure optional arguments come last ([#19](https://github.com/kapetacom/codegen-target/issues/19)) ([09ade64](https://github.com/kapetacom/codegen-target/commit/09ade6410bb38ec387050a2082695659b667854a))
+
 ## [1.5.1](https://github.com/kapetacom/codegen-target/compare/v1.5.0...v1.5.1) (2024-01-02)
 
 
