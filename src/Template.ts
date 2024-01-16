@@ -7,8 +7,22 @@ import Handlebars from 'handlebars';
 import _ from 'lodash';
 import { HelperOptions } from 'handlebars';
 import { CodeFormatter, TypeLike } from './CodeFormatter';
-import { Entity, isBuiltInType, Kind } from '@kapeta/schemas';
+import { Entity, isBuiltInType, Kind, SourceCode } from '@kapeta/schemas';
 import { normalizeKapetaUri, parseKapetaUri } from '@kapeta/nodejs-utils';
+import {
+    CONFIG_FIELD_ANNOTATIONS,
+    DSLController,
+    DSLEntityType,
+    DSLMethod,
+    DSLParser,
+    DSLParserOptions,
+    DSLResult,
+    KAPLANG_ID,
+    KAPLANG_VERSION,
+    TYPE_INSTANCE, TYPE_INSTANCE_PROVIDER, TYPE_PAGEABLE,
+    ucFirst
+} from '@kapeta/kaplang-core';
+
 
 Handlebars.noConflict(); //Remove from global space
 
@@ -224,7 +238,9 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
     }
 
     const BUILT_IN_REFS = [
-        'Instance', 'InstanceProvider'
+        TYPE_INSTANCE,
+        TYPE_INSTANCE_PROVIDER,
+        TYPE_PAGEABLE,
     ]
 
     function normalizeType(type:string):string[] {
@@ -369,6 +385,136 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         });
 
         return codeFormatter.$methods(out);
+    });
+
+    function parseKaplang(source:SourceCode, parserOptions:DSLParserOptions,  options: HelperOptions) {
+        if (!source || !source.value) {
+            return '';
+        }
+
+
+        const baseControllerName =  options.data?.root?.data?.metadata?.name ?? 'main';
+
+        const validTypes:string[] = parserOptions.validTypes ?? [];
+
+        if (context.spec?.entities?.source?.value &&
+            context.spec?.entities?.source?.value !== source.value) {
+            try {
+                const entities = DSLParser.parse(context.spec.entities.source.value, {
+                    types: true,
+                });
+
+                if (entities.entities) {
+                    entities.entities.forEach((entity) => {
+                        if (entity.type === DSLEntityType.DATATYPE ||
+                            entity.type === DSLEntityType.ENUM) {
+                            validTypes.push(entity.name);
+                        }
+                    });
+                }
+            } catch (e:any) {
+                console.warn('Failed to parse source code: %s\n\n----\n', e.stack, source.value);
+                throw e;
+            }
+        }
+
+        try {
+            const results = DSLParser.parse(source.value, {
+                ...parserOptions,
+                validTypes
+            });
+
+            if (results.errors?.length &&
+                results.errors?.length > 0) {
+
+                throw new Error(`Failed to parse source code: ${results.errors.join(', ')}`);
+            }
+
+            if (!results.entities) {
+                return new handlebarInstance.SafeString('');
+            }
+
+            const methods = results.entities.filter((entity) => entity.type === DSLEntityType.METHOD) as DSLMethod[];
+
+            const AnonymousController: DSLController = {
+                type: DSLEntityType.CONTROLLER,
+                name: baseControllerName,
+                path: '/',
+                methods,
+            };
+
+            const remainingEntities = results.entities
+                .filter((entity) => entity.type !== DSLEntityType.METHOD)
+                .map((entity) => {
+                    if (entity.type === DSLEntityType.CONTROLLER) {
+                        return {
+                            ...entity,
+                            name: baseControllerName + ucFirst(entity.name),
+                        };
+                    }
+                    return entity;
+                });
+            if (methods.length > 0) {
+                remainingEntities.push(AnonymousController);
+            }
+
+            const out: string[] = remainingEntities.map((entity) => {
+                return options.fn(entity);
+            });
+
+            return new handlebarInstance.SafeString(out.join('\n'));
+        } catch (e:any) {
+            console.warn('Failed to parse source code: %s\n\n----\n', e.stack, source.value);
+            throw e;
+        }
+    }
+
+    handlebarInstance.registerHelper('concat', (a: string, b:string) => {
+        return a + b;
+    });
+
+    handlebarInstance.registerHelper('kaplang-types', function (source:SourceCode, options: HelperOptions) {
+        return parseKaplang(source, {
+            types: true,
+            methods: false,
+            rest: false,
+        }, options);
+    });
+
+    handlebarInstance.registerHelper('kaplang-config', function (source:SourceCode, options: HelperOptions) {
+        return parseKaplang(source, {
+            types: true,
+            methods: false,
+            rest: false,
+            fieldAnnotations: CONFIG_FIELD_ANNOTATIONS.map((a) => a.name),
+            validTypes: [TYPE_INSTANCE]
+        }, options);
+    });
+
+
+
+    handlebarInstance.registerHelper('kaplang-types', function (source:SourceCode, options: HelperOptions) {
+        return parseKaplang(source, {
+            types: true,
+            methods: false,
+            rest: false,
+        }, options);
+    });
+
+    handlebarInstance.registerHelper('kaplang-methods', function (source:SourceCode, options: HelperOptions) {
+        return parseKaplang(source, {
+            types: true,
+            methods: true,
+            rest: false,
+        }, options);
+    });
+
+    handlebarInstance.registerHelper('kaplang-rest-methods', function (source:SourceCode, options: HelperOptions) {
+        return parseKaplang(source, {
+            types: true,
+            methods: true,
+            rest: true,
+        }, options);
     });
 
     return handlebarInstance;
