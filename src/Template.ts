@@ -12,15 +12,12 @@ import { normalizeKapetaUri, parseKapetaUri } from '@kapeta/nodejs-utils';
 import {
     CONFIG_FIELD_ANNOTATIONS,
     DSLController,
+    DSLEntity,
     DSLEntityType,
     DSLMethod,
     DSLParser,
     DSLParserOptions,
-    DSLResult,
-    KAPLANG_ID,
-    KAPLANG_VERSION,
     TYPE_INSTANCE, TYPE_INSTANCE_PROVIDER, TYPE_PAGEABLE,
-    ucFirst
 } from '@kapeta/kaplang-core';
 
 
@@ -393,7 +390,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         }
 
 
-        const baseControllerName =  options.data?.root?.data?.metadata?.name ?? 'main';
+        const baseControllerName:string =  options.data?.root?.data?.metadata?.name ?? 'main';
 
         const validTypes:string[] = parserOptions.validTypes ?? [];
 
@@ -443,13 +440,13 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
                 methods,
             };
 
-            const remainingEntities = results.entities
+            const remainingEntities:DSLEntity[] = results.entities
                 .filter((entity) => entity.type !== DSLEntityType.METHOD)
                 .map((entity) => {
                     if (entity.type === DSLEntityType.CONTROLLER) {
                         return {
                             ...entity,
-                            name: baseControllerName + ucFirst(entity.name),
+                            namespace: entity.namespace ?? baseControllerName,
                         };
                     }
                     return entity;
