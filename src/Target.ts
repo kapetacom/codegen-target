@@ -147,7 +147,7 @@ export class Target {
 
     public async postprocess(targetDir: string, files: GeneratedAsset[]) {}
 
-    public mergeFile(sourceFile: SourceFile, targetFile: GeneratedFile, lastFile: GeneratedFile|null): GeneratedFile {
+    public mergeFile(sourceFile: SourceFile, targetFile: GeneratedFile, lastFile: GeneratedFile | null): GeneratedFile {
         throw new Error('Could not merge changes for file: ' + sourceFile.filename + '. Merge not supported.');
     }
 
@@ -189,7 +189,7 @@ export class Target {
                     if (!currentMode) {
                         currentMode = 'write-always';
                     } else {
-                        const match= currentMode.match(/\b(merge|create-only|write-always)\b/);
+                        const match = currentMode.match(/\b(merge|create-only|write-always)\b/);
                         if (match) {
                             currentMode = match[1];
                         }

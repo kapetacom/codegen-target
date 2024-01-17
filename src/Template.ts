@@ -7,22 +7,26 @@ import Handlebars from 'handlebars';
 import _ from 'lodash';
 import { HelperOptions } from 'handlebars';
 import { CodeFormatter, TypeLike } from './CodeFormatter';
-import {BlockDefinitionSpec, Entity, isBuiltInType, Kind, Resource, SourceCode } from '@kapeta/schemas';
+import { BlockDefinitionSpec, Entity, isBuiltInType, Kind, Resource, SourceCode } from '@kapeta/schemas';
 import { normalizeKapetaUri, parseKapetaUri } from '@kapeta/nodejs-utils';
 import {
     CONFIG_CONFIGURATION,
     CONFIG_FIELD_ANNOTATIONS,
-    DATATYPE_CONFIGURATION, DataTypeReader,
-    DSLController, DSLData,
+    DATATYPE_CONFIGURATION,
+    DataTypeReader,
+    DSLController,
+    DSLData,
     DSLEntity,
     DSLEntityType,
     DSLMethod,
     DSLParser,
     DSLParserOptions,
     METHOD_CONFIGURATION,
-    TYPE_INSTANCE, TYPE_INSTANCE_PROVIDER, TYPE_PAGEABLE, typeHasReference,
+    TYPE_INSTANCE,
+    TYPE_INSTANCE_PROVIDER,
+    TYPE_PAGEABLE,
+    typeHasReference,
 } from '@kapeta/kaplang-core';
-
 
 Handlebars.noConflict(); //Remove from global space
 
@@ -231,7 +235,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return new handlebarInstance.SafeString(codeFormatter.$setter(typename, propertyId));
     });
 
-    handlebarInstance.registerHelper('concat', (a: string, b:string) => {
+    handlebarInstance.registerHelper('concat', (a: string, b: string) => {
         return a + b;
     });
 
@@ -239,7 +243,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return value.slice(0, value.length - 1);
     });
 
-    handlebarInstance.registerHelper('usesAnyOf', function (this:any, kinds: string[], options) {
+    handlebarInstance.registerHelper('usesAnyOf', function (this: any, kinds: string[], options) {
         const data = context.spec as BlockDefinitionSpec;
         const usesAny = kinds.some((kind) => {
             const uri = parseKapetaUri(kind);
@@ -253,7 +257,6 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
 
         return options.inverse(this);
     });
-
 
     function isDTO(type: any) {
         if (!type || !context.spec || !context.spec.entities || !context.spec.entities.types) {
@@ -274,17 +277,13 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         });
     }
 
-    const BUILT_IN_REFS = [
-        TYPE_INSTANCE,
-        TYPE_INSTANCE_PROVIDER,
-        TYPE_PAGEABLE,
-    ]
+    const BUILT_IN_REFS = [TYPE_INSTANCE, TYPE_INSTANCE_PROVIDER, TYPE_PAGEABLE];
 
-    function normalizeType(type:string):string[] {
+    function normalizeType(type: string): string[] {
         if (!type) {
             return [];
         }
-        let types:string[] = [];
+        let types: string[] = [];
         if (type.endsWith('[]')) {
             //Get rid of array indicator
             type = type.substring(0, type.length - 2);
@@ -354,46 +353,49 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return new handlebarInstance.SafeString(out.join(''));
     });
 
-    handlebarInstance.registerHelper('hasTypeReference', function (this:any, entity:any, type:string, options: HelperOptions) {
-        let found: boolean = false;
+    handlebarInstance.registerHelper(
+        'hasTypeReference',
+        function (this: any, entity: any, type: string, options: HelperOptions) {
+            let found: boolean = false;
 
-        function process(entity: any | any[]) {
-            if (!entity || found) {
-                return;
-            }
-
-            if (Array.isArray(entity)) {
-                entity.forEach(process);
-                return;
-            }
-
-            if (typeof entity?.ref === 'string') {
-                if (normalizeType(entity.ref).includes(type)) {
-                    found = true;
+            function process(entity: any | any[]) {
+                if (!entity || found) {
+                    return;
                 }
-                return;
+
+                if (Array.isArray(entity)) {
+                    entity.forEach(process);
+                    return;
+                }
+
+                if (typeof entity?.ref === 'string') {
+                    if (normalizeType(entity.ref).includes(type)) {
+                        found = true;
+                    }
+                    return;
+                }
+
+                if (typeof entity === 'object') {
+                    process(Object.values(entity));
+                }
             }
 
-            if (typeof entity === 'object') {
-                process(Object.values(entity));
+            process(entity);
+
+            if (found) {
+                return options.fn(this);
             }
+            return options.inverse(this);
         }
+    );
 
-        process(entity);
-
-        if (found) {
-            return options.fn(this);
-        }
-        return options.inverse(this);
-    });
-
-    handlebarInstance.registerHelper('arguments', function (items: {[key:string]:any}, options: HelperOptions) {
+    handlebarInstance.registerHelper('arguments', function (items: { [key: string]: any }, options: HelperOptions) {
         const args = Object.entries(items).map(([key, value], index) => {
             return {
                 argumentName: key,
                 index,
-                ...value
-            }
+                ...value,
+            };
         });
 
         args.sort((a, b) => {
@@ -404,10 +406,10 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
                 return -1;
             }
             return a.index - b.index;
-        })
+        });
 
         const out = args.map((item) => {
-            return options.fn(item).trim().replace(/\n/gm, ' ').replace(/\s+/gm, ' ')
+            return options.fn(item).trim().replace(/\n/gm, ' ').replace(/\s+/gm, ' ');
         });
 
         return codeFormatter.$arguments(out);
@@ -424,14 +426,14 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return codeFormatter.$methods(out);
     });
 
-    function parseKaplang(source:SourceCode, parserOptions:DSLParserOptions,  options: HelperOptions) {
+    function parseKaplang(source: SourceCode, parserOptions: DSLParserOptions, options: HelperOptions) {
         if (!source || !source.value) {
             return '';
         }
 
-        const baseControllerName:string =  options.data?.root?.data?.metadata?.name ?? 'main';
+        const baseControllerName: string = options.data?.root?.data?.metadata?.name ?? 'main';
 
-        const validTypes:string[] = parserOptions.validTypes ?? [];
+        const validTypes: string[] = parserOptions.validTypes ?? [];
 
         try {
             const results = DSLParser.parse(source.value, {
@@ -440,9 +442,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
                 ignoreSemantics: true, // We're expecting valid code - this is not a good place to validate
             });
 
-            if (results.errors?.length &&
-                results.errors?.length > 0) {
-
+            if (results.errors?.length && results.errors?.length > 0) {
                 throw new Error(`Failed to parse source code: ${results.errors.join(', ')}`);
             }
 
@@ -459,7 +459,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
                 methods,
             };
 
-            const remainingEntities:DSLEntity[] = results.entities
+            const remainingEntities: DSLEntity[] = results.entities
                 .filter((entity) => entity.type !== DSLEntityType.METHOD)
                 .map((entity) => {
                     if (entity.type === DSLEntityType.CONTROLLER) {
@@ -479,24 +479,27 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             });
 
             return new handlebarInstance.SafeString(out.join('\n'));
-        } catch (e:any) {
+        } catch (e: any) {
             console.warn('Failed to parse source code: %s\n\n----\n', e.stack, source.value);
             throw e;
         }
     }
 
-    handlebarInstance.registerHelper('kaplang-has-reference', function (this:any, entity: DSLData, typeName, options:HelperOptions) {
-        if (entity.type !== DSLEntityType.DATATYPE) {
+    handlebarInstance.registerHelper(
+        'kaplang-has-reference',
+        function (this: any, entity: DSLData, typeName, options: HelperOptions) {
+            if (entity.type !== DSLEntityType.DATATYPE) {
+                return options.inverse(this);
+            }
+
+            if (typeHasReference(entity, typeName)) {
+                return options.fn(this);
+            }
             return options.inverse(this);
         }
+    );
 
-        if (typeHasReference(entity, typeName)) {
-            return options.fn(this);
-        }
-        return options.inverse(this);
-    });
-
-    handlebarInstance.registerHelper('kaplang-render', function (this:any, entity:DSLEntity, options: HelperOptions) {
+    handlebarInstance.registerHelper('kaplang-render', function (this: any, entity: DSLEntity, options: HelperOptions) {
         const isData = entity.type === DSLEntityType.DATATYPE || entity.type === DSLEntityType.ENUM;
         if (isData && DataTypeReader.isNative(entity)) {
             console.log('Skipping native type: %s', entity.name);
@@ -506,30 +509,46 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return options.fn(this);
     });
 
-    handlebarInstance.registerHelper('kaplang-config', function (source:SourceCode, options: HelperOptions) {
-        return parseKaplang(source, {
-            ...CONFIG_CONFIGURATION
-        }, options);
+    handlebarInstance.registerHelper('kaplang-config', function (source: SourceCode, options: HelperOptions) {
+        return parseKaplang(
+            source,
+            {
+                ...CONFIG_CONFIGURATION,
+            },
+            options
+        );
     });
 
-    handlebarInstance.registerHelper('kaplang-types', function (source:SourceCode, options: HelperOptions) {
-        return parseKaplang(source, {
-            ...DATATYPE_CONFIGURATION,
-        }, options);
+    handlebarInstance.registerHelper('kaplang-types', function (source: SourceCode, options: HelperOptions) {
+        return parseKaplang(
+            source,
+            {
+                ...DATATYPE_CONFIGURATION,
+            },
+            options
+        );
     });
 
-    handlebarInstance.registerHelper('kaplang-methods', function (source:SourceCode, options: HelperOptions) {
-        return parseKaplang(source, {
-            ...METHOD_CONFIGURATION,
-            rest: false,
-        }, options);
+    handlebarInstance.registerHelper('kaplang-methods', function (source: SourceCode, options: HelperOptions) {
+        return parseKaplang(
+            source,
+            {
+                ...METHOD_CONFIGURATION,
+                rest: false,
+            },
+            options
+        );
     });
 
-    handlebarInstance.registerHelper('kaplang-rest-methods', function (source:SourceCode, options: HelperOptions) {
-        return parseKaplang(source, {
-            ...METHOD_CONFIGURATION,
-            rest: true,
-        }, options);
+    handlebarInstance.registerHelper('kaplang-rest-methods', function (source: SourceCode, options: HelperOptions) {
+        return parseKaplang(
+            source,
+            {
+                ...METHOD_CONFIGURATION,
+                rest: true,
+            },
+            options
+        );
     });
 
     return handlebarInstance;

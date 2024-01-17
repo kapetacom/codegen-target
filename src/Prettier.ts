@@ -7,7 +7,6 @@ interface PrettierOverride {
     options: PrettierOptions;
     excludeFiles?: string[] | string;
     parser: string;
-
 }
 
 interface PrettierOptions {
@@ -21,7 +20,25 @@ interface PrettierOptions {
     htmlWhitespaceSensitivity?: 'css' | 'strict' | 'ignore';
     insertPragma?: boolean;
     jsxSingleQuote?: boolean;
-    parser?: 'babel' | 'babel-flow' | 'babel-ts' | 'flow' | 'typescript' | 'css' | 'less' | 'scss' | 'json' | 'json5' | 'json-stringify' | 'graphql' | 'markdown' | 'mdx' | 'html' | 'vue' | 'angular' | 'yaml';
+    parser?:
+        | 'babel'
+        | 'babel-flow'
+        | 'babel-ts'
+        | 'flow'
+        | 'typescript'
+        | 'css'
+        | 'less'
+        | 'scss'
+        | 'json'
+        | 'json5'
+        | 'json-stringify'
+        | 'graphql'
+        | 'markdown'
+        | 'mdx'
+        | 'html'
+        | 'vue'
+        | 'angular'
+        | 'yaml';
     pluginSearchDirs?: string[];
     plugins?: string[];
     printWidth?: number;
@@ -44,8 +61,7 @@ interface PrettierConfig extends PrettierOptions {
 }
 
 export function format(filename: string, code: string) {
-    if (filename.endsWith('.md') ||
-        filename.endsWith('.txt')) {
+    if (filename.endsWith('.md') || filename.endsWith('.txt')) {
         // Don't format markdown or text files
         return code;
     }
