@@ -10,13 +10,16 @@ import { CodeFormatter, TypeLike } from './CodeFormatter';
 import { Entity, isBuiltInType, Kind, SourceCode } from '@kapeta/schemas';
 import { normalizeKapetaUri, parseKapetaUri } from '@kapeta/nodejs-utils';
 import {
+    CONFIG_CONFIGURATION,
     CONFIG_FIELD_ANNOTATIONS,
+    DATATYPE_CONFIGURATION,
     DSLController,
     DSLEntity,
     DSLEntityType,
     DSLMethod,
     DSLParser,
     DSLParserOptions,
+    METHOD_CONFIGURATION,
     TYPE_INSTANCE, TYPE_INSTANCE_PROVIDER, TYPE_PAGEABLE,
 } from '@kapeta/kaplang-core';
 
@@ -470,46 +473,28 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return a + b;
     });
 
-    handlebarInstance.registerHelper('kaplang-types', function (source:SourceCode, options: HelperOptions) {
-        return parseKaplang(source, {
-            types: true,
-            methods: false,
-            rest: false,
-        }, options);
-    });
-
     handlebarInstance.registerHelper('kaplang-config', function (source:SourceCode, options: HelperOptions) {
         return parseKaplang(source, {
-            types: true,
-            methods: false,
-            rest: false,
-            fieldAnnotations: CONFIG_FIELD_ANNOTATIONS.map((a) => a.name),
-            validTypes: [TYPE_INSTANCE]
+            ...CONFIG_CONFIGURATION
         }, options);
     });
 
-
-
     handlebarInstance.registerHelper('kaplang-types', function (source:SourceCode, options: HelperOptions) {
         return parseKaplang(source, {
-            types: true,
-            methods: false,
-            rest: false,
+            ...DATATYPE_CONFIGURATION,
         }, options);
     });
 
     handlebarInstance.registerHelper('kaplang-methods', function (source:SourceCode, options: HelperOptions) {
         return parseKaplang(source, {
-            types: true,
-            methods: true,
+            ...METHOD_CONFIGURATION,
             rest: false,
         }, options);
     });
 
     handlebarInstance.registerHelper('kaplang-rest-methods', function (source:SourceCode, options: HelperOptions) {
         return parseKaplang(source, {
-            types: true,
-            methods: true,
+            ...METHOD_CONFIGURATION,
             rest: true,
         }, options);
     });
