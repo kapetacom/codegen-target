@@ -12,7 +12,7 @@ import { normalizeKapetaUri, parseKapetaUri } from '@kapeta/nodejs-utils';
 import {
     CONFIG_CONFIGURATION,
     CONFIG_FIELD_ANNOTATIONS,
-    DATATYPE_CONFIGURATION,
+    DATATYPE_CONFIGURATION, DataTypeReader,
     DSLController,
     DSLEntity,
     DSLEntityType,
@@ -392,36 +392,15 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             return '';
         }
 
-
         const baseControllerName:string =  options.data?.root?.data?.metadata?.name ?? 'main';
 
         const validTypes:string[] = parserOptions.validTypes ?? [];
 
-        if (context.spec?.entities?.source?.value &&
-            context.spec?.entities?.source?.value !== source.value) {
-            try {
-                const entities = DSLParser.parse(context.spec.entities.source.value, {
-                    types: true,
-                });
-
-                if (entities.entities) {
-                    entities.entities.forEach((entity) => {
-                        if (entity.type === DSLEntityType.DATATYPE ||
-                            entity.type === DSLEntityType.ENUM) {
-                            validTypes.push(entity.name);
-                        }
-                    });
-                }
-            } catch (e:any) {
-                console.warn('Failed to parse source code: %s\n\n----\n', e.stack, source.value);
-                throw e;
-            }
-        }
-
         try {
             const results = DSLParser.parse(source.value, {
                 ...parserOptions,
-                validTypes
+                validTypes,
+                ignoreSemantics: true, // We're expecting valid code - this is not a good place to validate
             });
 
             if (results.errors?.length &&
@@ -471,6 +450,16 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
 
     handlebarInstance.registerHelper('concat', (a: string, b:string) => {
         return a + b;
+    });
+
+    handlebarInstance.registerHelper('kaplang-render', function (this:any, entity:DSLEntity, options: HelperOptions) {
+        const isData = entity.type === DSLEntityType.DATATYPE || entity.type === DSLEntityType.ENUM;
+        if (isData && DataTypeReader.isNative(entity)) {
+            console.log('Skipping native type: %s', entity.name);
+            return options.inverse(this);
+        }
+
+        return options.fn(this);
     });
 
     handlebarInstance.registerHelper('kaplang-config', function (source:SourceCode, options: HelperOptions) {
