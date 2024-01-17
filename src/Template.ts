@@ -7,20 +7,20 @@ import Handlebars from 'handlebars';
 import _ from 'lodash';
 import { HelperOptions } from 'handlebars';
 import { CodeFormatter, TypeLike } from './CodeFormatter';
-import { Entity, isBuiltInType, Kind, SourceCode } from '@kapeta/schemas';
+import {BlockDefinitionSpec, Entity, isBuiltInType, Kind, Resource, SourceCode } from '@kapeta/schemas';
 import { normalizeKapetaUri, parseKapetaUri } from '@kapeta/nodejs-utils';
 import {
     CONFIG_CONFIGURATION,
     CONFIG_FIELD_ANNOTATIONS,
     DATATYPE_CONFIGURATION, DataTypeReader,
-    DSLController,
+    DSLController, DSLData,
     DSLEntity,
     DSLEntityType,
     DSLMethod,
     DSLParser,
     DSLParserOptions,
     METHOD_CONFIGURATION,
-    TYPE_INSTANCE, TYPE_INSTANCE_PROVIDER, TYPE_PAGEABLE,
+    TYPE_INSTANCE, TYPE_INSTANCE_PROVIDER, TYPE_PAGEABLE, typeHasReference,
 } from '@kapeta/kaplang-core';
 
 
@@ -108,6 +108,19 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
 
     handlebarInstance.registerHelper('curly', function (object, open) {
         return open ? '{' : '}';
+    });
+
+    handlebarInstance.registerHelper('kebab', (camelCase) => {
+        return new handlebarInstance.SafeString(camelCase.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase());
+    });
+
+    handlebarInstance.registerHelper('when', (type, options) => {
+        const inner = options.fn();
+        const [whenTrue, whenFalse] = inner.split(/\|\|/);
+        if (options.hash && options.hash.type === type) {
+            return new handlebarInstance.SafeString(whenTrue);
+        }
+        return new handlebarInstance.SafeString(whenFalse || '');
     });
 
     handlebarInstance.registerHelper('eachProperty', function (items: any, options: HelperOptions) {
@@ -217,6 +230,30 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
     handlebarInstance.registerHelper('setter', function (typename, propertyId) {
         return new handlebarInstance.SafeString(codeFormatter.$setter(typename, propertyId));
     });
+
+    handlebarInstance.registerHelper('concat', (a: string, b:string) => {
+        return a + b;
+    });
+
+    handlebarInstance.registerHelper('toArray', (...value: any[]) => {
+        return value.slice(0, value.length - 1);
+    });
+
+    handlebarInstance.registerHelper('usesAnyOf', function (this:any, kinds: string[], options) {
+        const data = context.spec as BlockDefinitionSpec;
+        const usesAny = kinds.some((kind) => {
+            const uri = parseKapetaUri(kind);
+            const matcher = (consumer: Resource) => parseKapetaUri(consumer.kind).fullName === uri.fullName;
+            return data.consumers?.some(matcher) || data.providers?.some(matcher);
+        });
+
+        if (usesAny) {
+            return options.fn(this);
+        }
+
+        return options.inverse(this);
+    });
+
 
     function isDTO(type: any) {
         if (!type || !context.spec || !context.spec.entities || !context.spec.entities.types) {
@@ -448,8 +485,15 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         }
     }
 
-    handlebarInstance.registerHelper('concat', (a: string, b:string) => {
-        return a + b;
+    handlebarInstance.registerHelper('kaplang-has-reference', function (this:any, entity: DSLData, typeName, options:HelperOptions) {
+        if (entity.type !== DSLEntityType.DATATYPE) {
+            return options.inverse(this);
+        }
+
+        if (typeHasReference(entity, typeName)) {
+            return options.fn(this);
+        }
+        return options.inverse(this);
     });
 
     handlebarInstance.registerHelper('kaplang-render', function (this:any, entity:DSLEntity, options: HelperOptions) {
