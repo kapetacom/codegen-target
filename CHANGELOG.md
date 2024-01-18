@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/kapetacom/codegen-target/compare/v1.5.2...v1.6.0) (2024-01-18)
+
+
+### Features
+
+* Adds kaplang helpers to process DSL during codegen ([#20](https://github.com/kapetacom/codegen-target/issues/20)) ([3211b9a](https://github.com/kapetacom/codegen-target/commit/3211b9a46873346da65b48149c524ed088f63c2d))
+
 ## [1.5.2](https://github.com/kapetacom/codegen-target/compare/v1.5.1...v1.5.2) (2024-01-03)
 
 
