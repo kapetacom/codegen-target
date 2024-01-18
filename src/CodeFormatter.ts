@@ -31,7 +31,7 @@ export class CodeFormatter {
         if (!value) {
             return '';
         }
-        return value;
+        return value.trim();
     }
 
     $method(value: string): string {

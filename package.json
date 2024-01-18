@@ -17,6 +17,7 @@
     },
     "types": "./dist/esm/index.d.ts",
     "main": "./dist/cjs/index.js",
+    "module": "./dist/esm/index.js",
     "scripts": {
         "clean": "rm -rf ./dist",
         "build:esm": "tsc --module esnext --outDir ./dist/esm && echo '{\"type\":\"module\"}' > ./dist/esm/package.json",
@@ -71,17 +72,18 @@
         ]
     },
     "dependencies": {
-        "@kapeta/prettier-config": "^0.6.2",
-        "prettier": "^2.8.8",
+        "@kapeta/kaplang-core": "^1.8.2",
+        "@kapeta/schemas": "^2",
         "@kapeta/nodejs-utils": "<2",
+        "@kapeta/prettier-config": "^0.6.2",
         "handlebars": "4.7.8",
         "lodash": "4.17.21",
+        "prettier": "^2.8.8",
         "yaml": "^2.1.2"
     },
     "devDependencies": {
         "@jest/globals": "^29.7.0",
         "@kapeta/eslint-config": "^0.6.0",
-        "@kapeta/schemas": "<2",
         "@tsconfig/node18": "^1.0.1",
         "@types/lodash": "^4.14.192",
         "@types/node": "^18.15.11",
