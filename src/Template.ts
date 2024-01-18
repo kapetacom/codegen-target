@@ -7,7 +7,7 @@ import Handlebars from 'handlebars';
 import _ from 'lodash';
 import { HelperOptions } from 'handlebars';
 import { CodeFormatter, TypeLike } from './CodeFormatter';
-import { BlockDefinitionSpec, Entity, isBuiltInType, Kind, Resource, SourceCode } from '@kapeta/schemas';
+import { BlockDefinitionSpec, Entity, Kind, Resource, SourceCode } from '@kapeta/schemas';
 import { normalizeKapetaUri, parseKapetaUri } from '@kapeta/nodejs-utils';
 import {
     CONFIG_CONFIGURATION,
@@ -15,17 +15,17 @@ import {
     DATATYPE_CONFIGURATION,
     DataTypeReader,
     DSLController,
-    DSLData,
+    DSLData, DSLDataType,
     DSLEntity,
-    DSLEntityType,
+    DSLEntityType, DSLEnum,
     DSLMethod,
     DSLParser,
-    DSLParserOptions,
-    METHOD_CONFIGURATION,
+    DSLParserOptions, DSLType, EntityHelpers, EnumTypeReader, isVoid,
+    METHOD_CONFIGURATION, RESTControllerReader, RESTMethodReader,
     TYPE_INSTANCE,
     TYPE_INSTANCE_PROVIDER,
     TYPE_PAGEABLE,
-    typeHasReference,
+    typeHasReference, ucFirst,
 } from '@kapeta/kaplang-core';
 
 Handlebars.noConflict(); //Remove from global space
@@ -77,14 +77,16 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         throw new Error('Missing context');
     }
 
+
+
     /** Utils **/
 
     handlebarInstance.registerHelper('lowercase', function (typename) {
-        return new handlebarInstance.SafeString(typename.toLowerCase());
+        return new handlebarInstance.SafeString(typename?.toLowerCase());
     });
 
     handlebarInstance.registerHelper('uppercase', function (typename) {
-        return new handlebarInstance.SafeString(typename.toUpperCase());
+        return new handlebarInstance.SafeString(typename?.toUpperCase());
     });
 
     handlebarInstance.registerHelper('default', function (value, defaultValue) {
@@ -114,12 +116,34 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return open ? '{' : '}';
     });
 
-    handlebarInstance.registerHelper('kebab', (camelCase) => {
-        return new handlebarInstance.SafeString(camelCase.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase());
+    handlebarInstance.registerHelper('kebab', (text) => {
+        return new handlebarInstance.SafeString(_.kebabCase(text));
     });
 
-    handlebarInstance.registerHelper('when', (type, options) => {
-        const inner = options.fn();
+    handlebarInstance.registerHelper('kebabCase', (text) => {
+        return new handlebarInstance.SafeString(_.kebabCase(text));
+    });
+
+    handlebarInstance.registerHelper('snakeCase', (text) => {
+        return new handlebarInstance.SafeString(_.snakeCase(text));
+    });
+
+    handlebarInstance.registerHelper('camelCase', (value: string) => {
+        return new handlebarInstance.SafeString(_.camelCase(value));
+    });
+
+    handlebarInstance.registerHelper('pascalCase', (value: string) => {
+        const camel = _.camelCase(value);
+        return camel.substring(0, 1).toUpperCase() + camel.substring(1);
+    });
+
+
+    handlebarInstance.registerHelper('toJSON', (value: any) => {
+        return JSON.stringify(value, null, 4);
+    });
+
+    handlebarInstance.registerHelper('when', function (this:any, type, options) {
+        const inner = options.fn(this);
         const [whenTrue, whenFalse] = inner.split(/\|\|/);
         if (options.hash && options.hash.type === type) {
             return new handlebarInstance.SafeString(whenTrue);
@@ -306,7 +330,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         const out: string[] = [];
 
         function maybeRenderType(type: string) {
-            if (type === 'any' || type === 'Map' || type === 'Set' || isBuiltInType({ type })) {
+            if (type === 'any' || type === 'Map' || type === 'Set' || EntityHelpers.isBuiltInType(type)) {
                 // Special built-in type
                 return;
             }
@@ -351,6 +375,14 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         process(entity);
 
         return new handlebarInstance.SafeString(out.join(''));
+    });
+
+
+    handlebarInstance.registerHelper('ifValueType', function (this:any, type:DSLType, options:HelperOptions) {
+        if (!isVoid(type)) {
+            return options.fn(this);
+        }
+        return options.inverse(this);
     });
 
     handlebarInstance.registerHelper(
@@ -426,12 +458,12 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return codeFormatter.$methods(out);
     });
 
-    function parseKaplang(source: SourceCode, parserOptions: DSLParserOptions, options: HelperOptions) {
+    function parseKaplang(source: SourceCode, parserOptions: DSLParserOptions, namespace:string|null, options: HelperOptions) {
         if (!source || !source.value) {
             return '';
         }
 
-        const baseControllerName: string = options.data?.root?.data?.metadata?.name ?? 'main';
+        const baseControllerName: string = namespace ?? options.data?.root?.data?.metadata?.name ?? 'main';
 
         const validTypes: string[] = parserOptions.validTypes ?? [];
 
@@ -462,10 +494,13 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             const remainingEntities: DSLEntity[] = results.entities
                 .filter((entity) => entity.type !== DSLEntityType.METHOD)
                 .map((entity) => {
+
                     if (entity.type === DSLEntityType.CONTROLLER) {
+                        const namespace = entity.namespace ?? baseControllerName;
+
                         return {
                             ...entity,
-                            namespace: entity.namespace ?? baseControllerName,
+                            namespace,
                         };
                     }
                     return entity;
@@ -484,6 +519,19 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             throw e;
         }
     }
+
+    handlebarInstance.registerHelper(
+        'first',
+        function (this: any, arg1: string|undefined, arg2:string|undefined) {
+            if (arg1) {
+                return arg1;
+            }
+            if (arg2) {
+                return arg2;
+            }
+            return '';
+        }
+    );
 
     handlebarInstance.registerHelper(
         'kaplang-has-reference',
@@ -515,6 +563,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             {
                 ...CONFIG_CONFIGURATION,
             },
+            options.hash.namespace ?? null,
             options
         );
     });
@@ -525,6 +574,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             {
                 ...DATATYPE_CONFIGURATION,
             },
+            options.hash.namespace ?? null,
             options
         );
     });
@@ -536,6 +586,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
                 ...METHOD_CONFIGURATION,
                 rest: false,
             },
+            options.hash.namespace ?? null,
             options
         );
     });
@@ -547,9 +598,34 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
                 ...METHOD_CONFIGURATION,
                 rest: true,
             },
+            options.hash.namespace ?? null,
             options
         );
     });
+
+    handlebarInstance.registerHelper('kaplang-reader-rest-method', function (this: DSLMethod, options: HelperOptions) {
+        return options.fn(new RESTMethodReader(this).toJSON());
+    });
+
+    handlebarInstance.registerHelper('kaplang-reader-rest-controller', function (this: DSLController, options: HelperOptions) {
+        return options.fn(new RESTControllerReader(this).toJSON());
+    });
+
+    handlebarInstance.registerHelper('kaplang-reader-datatype', function (this: DSLDataType, options: HelperOptions) {
+        return options.fn(new DataTypeReader(this).toJSON());
+    });
+
+    handlebarInstance.registerHelper('kaplang-reader-enum', function (this: DSLEnum, options: HelperOptions) {
+        return options.fn(new EnumTypeReader(this).toJSON());
+    });
+
+    handlebarInstance.registerHelper('controller-name', (entity: RESTControllerReader) => {
+        if (entity.namespace && entity.namespace.toLowerCase() !== entity.name.toLowerCase()) {
+            return `${ucFirst(entity.namespace)}${ucFirst(entity.name)}`;
+        }
+        return ucFirst(entity.name);
+    });
+
 
     return handlebarInstance;
 }

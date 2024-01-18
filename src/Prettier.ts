@@ -78,7 +78,7 @@ export function format(filename: string, code: string) {
             // Expected error, don't log
             return code;
         }
-        console.log('Failed to prettify source: ' + filename + '. ' + e);
+        console.log('Failed to prettify source: ' + filename + '. ' + e, code);
         return code;
     }
 }
