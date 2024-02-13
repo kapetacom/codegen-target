@@ -73,10 +73,11 @@
     },
     "dependencies": {
         "@kapeta/kaplang-core": "^1.11.2",
-        "@kapeta/schemas": "^3",
         "@kapeta/nodejs-utils": "<2",
         "@kapeta/prettier-config": "^0.6.2",
+        "@kapeta/schemas": "^3",
         "handlebars": "4.7.8",
+        "is-binary-path": "^2.1.0",
         "lodash": "4.17.21",
         "prettier": "^2.8.8",
         "yaml": "^2.1.2"

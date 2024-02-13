@@ -10,6 +10,7 @@ import * as Template from './Template';
 import { CodeFormatter } from './CodeFormatter';
 import { GeneratedAsset, GeneratedFile, SourceFile } from './types';
 import { parseKapetaUri } from '@kapeta/nodejs-utils';
+import isBinaryPath from "is-binary-path";
 
 function walkDirectory(dir: string) {
     let results: string[] = [];
@@ -58,12 +59,17 @@ export class Target {
     protected _render(
         templateEngine: typeof Handlebars,
         sourceFile: string,
-        templateSource: string,
+        templateSource: Buffer,
         data: any,
         context: any
-    ): string {
+    ): string|Buffer {
         try {
-            const template = templateEngine.compile(templateSource);
+
+            if (isBinaryPath(sourceFile)) {
+                return templateSource;
+            }
+
+            const template = templateEngine.compile(templateSource.toString());
 
             return template({
                 options: this.options,
@@ -125,7 +131,7 @@ export class Target {
         const out: GeneratedFile[] = [];
 
         templateFiles.forEach((fileName) => {
-            const templateSource = FS.readFileSync(fileName).toString();
+            const templateSource = FS.readFileSync(fileName);
 
             //We always clone data in case a target implementation wants to change it
             const sourceCode = this._render(templateEngine, fileName, templateSource, _.cloneDeep(data), context);
@@ -151,12 +157,23 @@ export class Target {
         throw new Error('Could not merge changes for file: ' + sourceFile.filename + '. Merge not supported.');
     }
 
-    private _parseCode(filename: string, sourceCode: string): GeneratedFile[] {
+    private _parseCode(filename: string, sourceCode: string|Buffer): GeneratedFile[] {
+        let currentMode = 'create-only';
+        let currentPermissions = '644';
+        let currentFilename = filename;
+
+        if (isBinaryPath(filename) || sourceCode instanceof Buffer) {
+            return [
+                {
+                    filename: currentFilename,
+                    content: sourceCode,
+                    mode: currentMode,
+                    permissions: currentPermissions,
+                },
+            ];
+        }
         const files: GeneratedFile[] = [];
         let currentFileContent: string[] = [];
-        let currentFilename = filename;
-        let currentMode = 'write-always';
-        let currentPermissions = '644';
 
         const processCurrentFile = () => {
             if (currentMode === 'skip') {
