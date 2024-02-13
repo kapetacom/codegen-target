@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/kapetacom/codegen-target/compare/v1.6.0...v1.6.1) (2024-02-13)
+
+
+### Bug Fixes
+
+* Make trailing "/" a valid path ([#22](https://github.com/kapetacom/codegen-target/issues/22)) ([4b2a4c8](https://github.com/kapetacom/codegen-target/commit/4b2a4c85c850e0b47e72eef30c59676b7b84809e))
+
 # [1.6.0](https://github.com/kapetacom/codegen-target/compare/v1.5.2...v1.6.0) (2024-01-18)
 
 
