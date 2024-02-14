@@ -212,6 +212,19 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return out.join('\n');
     });
 
+
+    handlebarInstance.registerHelper('consumers-of-type-joined', function (kind, joiner, options:HelperOptions) {
+        if (!context.spec.consumers) {
+            return '';
+        }
+        const out: string[] = [];
+        _.filter(context.spec.consumers, findKindCaseInsensitive(kind)).forEach((consumer) => {
+            out.push(options.fn(consumer));
+        });
+        const result = out.join(joiner);
+        return new handlebarInstance.SafeString(result);
+    });
+
     handlebarInstance.registerHelper('providers-of-type', function (type, options: HelperOptions) {
         if (!context.spec.providers) {
             return '';
@@ -221,6 +234,18 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             out.push(options.fn(provider));
         });
         return out.join('\n');
+    });
+
+    handlebarInstance.registerHelper('providers-of-type-joined', function (kind, joiner, options:HelperOptions) {
+        if (!context.spec.providers) {
+            return '';
+        }
+        const out: string[] = [];
+        _.filter(context.spec.providers, findKindCaseInsensitive(kind)).forEach((provider) => {
+            out.push(options.fn(provider));
+        });
+        const result = out.join(joiner);
+        return new handlebarInstance.SafeString(result);
     });
 
     /** Code formatters **/

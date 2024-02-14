@@ -5,7 +5,7 @@
 
 export interface GeneratedFile {
     filename: string;
-    content: string;
+    content: string|Buffer;
     mode: string;
     permissions: string;
 }
