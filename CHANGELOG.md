@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/kapetacom/codegen-target/compare/v1.6.1...v1.7.0) (2024-02-14)
+
+
+### Features
+
+* Add support for binary files in templates ([#23](https://github.com/kapetacom/codegen-target/issues/23)) ([409ac49](https://github.com/kapetacom/codegen-target/commit/409ac49d24ae443d8207f8ed179db936e7a96224))
+
 ## [1.6.1](https://github.com/kapetacom/codegen-target/compare/v1.6.0...v1.6.1) (2024-02-13)
 
 
