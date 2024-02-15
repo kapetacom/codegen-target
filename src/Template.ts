@@ -92,8 +92,16 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return new handlebarInstance.SafeString(typename?.toLowerCase());
     });
 
+    handlebarInstance.registerHelper('lowerFirst', function (typename) {
+        return new handlebarInstance.SafeString(_.lowerFirst(typename));
+    });
+
     handlebarInstance.registerHelper('uppercase', function (typename) {
         return new handlebarInstance.SafeString(typename?.toUpperCase());
+    });
+
+    handlebarInstance.registerHelper('upperFirst', function (typename) {
+        return new handlebarInstance.SafeString(_.upperFirst(typename));
     });
 
     handlebarInstance.registerHelper('default', function (value, defaultValue) {
@@ -212,8 +220,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return out.join('\n');
     });
 
-
-    handlebarInstance.registerHelper('consumers-of-type-joined', function (kind, joiner, options:HelperOptions) {
+    handlebarInstance.registerHelper('consumers-of-type-joined', function (kind, joiner, options: HelperOptions) {
         if (!context.spec.consumers) {
             return '';
         }
@@ -236,7 +243,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return out.join('\n');
     });
 
-    handlebarInstance.registerHelper('providers-of-type-joined', function (kind, joiner, options:HelperOptions) {
+    handlebarInstance.registerHelper('providers-of-type-joined', function (kind, joiner, options: HelperOptions) {
         if (!context.spec.providers) {
             return '';
         }
