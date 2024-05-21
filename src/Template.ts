@@ -36,6 +36,7 @@ import {
     typeHasReference,
     ucFirst,
 } from '@kapeta/kaplang-core';
+import { OPTION_CONTEXT_AI } from './types';
 
 Handlebars.noConflict(); //Remove from global space
 
@@ -71,11 +72,8 @@ function findKindCaseInsensitive(type: string) {
 }
 /**
  *
- * @param data {object}
- * @param context {object}
- * @param {CodeFormatter} codeFormatter
  */
-export function create(data: any, context: any, codeFormatter: CodeFormatter): TemplateType {
+export function create(contextOptions: any, data: any, context: any, codeFormatter: CodeFormatter): TemplateType {
     const handlebarInstance = Handlebars.create();
 
     if (!data) {
@@ -212,8 +210,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return out.join('\n');
     });
 
-
-    handlebarInstance.registerHelper('consumers-of-type-joined', function (kind, joiner, options:HelperOptions) {
+    handlebarInstance.registerHelper('consumers-of-type-joined', function (kind, joiner, options: HelperOptions) {
         if (!context.spec.consumers) {
             return '';
         }
@@ -236,7 +233,7 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
         return out.join('\n');
     });
 
-    handlebarInstance.registerHelper('providers-of-type-joined', function (kind, joiner, options:HelperOptions) {
+    handlebarInstance.registerHelper('providers-of-type-joined', function (kind, joiner, options: HelperOptions) {
         if (!context.spec.providers) {
             return '';
         }
@@ -658,6 +655,22 @@ export function create(data: any, context: any, codeFormatter: CodeFormatter): T
             return `${ucFirst(entity.namespace)}${ucFirst(entity.name)}`;
         }
         return ucFirst(entity.name);
+    });
+
+    // Only render if AI context is enabled
+    handlebarInstance.registerHelper('ai-context', function (this: any, options: HelperOptions) {
+        if (contextOptions && OPTION_CONTEXT_AI in contextOptions) {
+            return options.fn(this);
+        }
+        return options.inverse(this);
+    });
+
+    // Standardize the AI instruction. Should usually be wrapped in a comment
+    handlebarInstance.registerHelper('ai-instruction', function (this: string, options: HelperOptions) {
+        if (contextOptions && OPTION_CONTEXT_AI in contextOptions) {
+            return options.fn(`STORM-AI: ${this}`);
+        }
+        return options.inverse('');
     });
 
     return handlebarInstance;

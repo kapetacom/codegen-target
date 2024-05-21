@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: MIT
  */
 
+export const OPTION_CONTEXT_AI = 'AIContext';
+
 export interface GeneratedFile {
     filename: string;
-    content: string|Buffer;
+    content: string | Buffer;
     mode: string;
     permissions: string;
 }

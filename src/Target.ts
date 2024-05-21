@@ -10,7 +10,7 @@ import * as Template from './Template';
 import { CodeFormatter } from './CodeFormatter';
 import { GeneratedAsset, GeneratedFile, SourceFile } from './types';
 import { parseKapetaUri } from '@kapeta/nodejs-utils';
-import isBinaryPath from "is-binary-path";
+import isBinaryPath from 'is-binary-path';
 
 function walkDirectory(dir: string) {
     let results: string[] = [];
@@ -48,7 +48,7 @@ export class Target {
     }
 
     protected _createTemplateEngine(data: any, context: any): Template.TemplateType {
-        return Template.create(data, context, this._formatter);
+        return Template.create(this.options, data, context, this._formatter);
     }
 
     /**
@@ -62,9 +62,8 @@ export class Target {
         templateSource: Buffer,
         data: any,
         context: any
-    ): string|Buffer {
+    ): string | Buffer {
         try {
-
             if (isBinaryPath(sourceFile)) {
                 return templateSource;
             }
@@ -157,7 +156,7 @@ export class Target {
         throw new Error('Could not merge changes for file: ' + sourceFile.filename + '. Merge not supported.');
     }
 
-    private _parseCode(filename: string, sourceCode: string|Buffer): GeneratedFile[] {
+    private _parseCode(filename: string, sourceCode: string | Buffer): GeneratedFile[] {
         let currentMode = 'create-only';
         let currentPermissions = '644';
         let currentFilename = filename;
