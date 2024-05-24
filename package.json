@@ -1,6 +1,6 @@
 {
     "name": "@kapeta/codegen-target",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "description": "SDK module for creating code generation targets",
     "type": "commonjs",
     "exports": {

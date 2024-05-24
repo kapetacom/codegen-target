@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/kapetacom/codegen-target/compare/v1.7.0...v1.8.0) (2024-05-24)
+
+
+### Features
+
+* Add helpers for rendering things in an AI context ([#25](https://github.com/kapetacom/codegen-target/issues/25)) ([03e723c](https://github.com/kapetacom/codegen-target/commit/03e723cbb550793193fa7d27936dcc0c6b7ec185))
+
 # [1.7.0](https://github.com/kapetacom/codegen-target/compare/v1.6.1...v1.7.0) (2024-02-14)
 
 
