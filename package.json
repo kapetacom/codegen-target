@@ -72,7 +72,7 @@
         ]
     },
     "dependencies": {
-        "@kapeta/kaplang-core": "^1.11.2",
+        "@kapeta/kaplang-core": "^1.16.0",
         "@kapeta/nodejs-utils": "<2",
         "@kapeta/prettier-config": "^0.6.2",
         "@kapeta/schemas": "^3",
