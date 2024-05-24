@@ -25,3 +25,22 @@ export interface SourceFile {
     content: string;
     permissions: string;
 }
+
+export enum AIFileTypes {
+    SERVICE = 'service',
+    SERVICE_IF = 'service-interface',
+    WEB_SCREEN = 'web-screen',
+    DAO = 'dao',
+    DTO = 'dto',
+    CONFIG = 'config',
+    CLIENT = 'client', // Various clients
+    API = 'api',
+    API_CLIENT = 'api-client', // API client
+    EVENT_PUBLISHER = 'event-publisher',
+    EVENT_CONSUMER = 'event-consumer',
+    SECURITY = 'security',
+    CONTEXT = 'context',
+    IGNORE = 'ignore',
+    INSTRUCTIONS = 'instructions',
+    DOCUMENTATION = 'documentation',
+}
