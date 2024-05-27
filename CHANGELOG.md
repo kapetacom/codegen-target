@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/kapetacom/codegen-target/compare/v1.8.0...v1.8.1) (2024-05-27)
+
+
+### Bug Fixes
+
+* Issues in ai-comment helper and adds escaped for ignoring HB syntax ([#27](https://github.com/kapetacom/codegen-target/issues/27)) ([984bbc7](https://github.com/kapetacom/codegen-target/commit/984bbc7e6692382f94902b500f7d77e087eb0ed1))
+
 # [1.8.0](https://github.com/kapetacom/codegen-target/compare/v1.7.0...v1.8.0) (2024-05-24)
 
 
