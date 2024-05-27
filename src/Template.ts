@@ -102,6 +102,7 @@ export function create(contextOptions: any, data: any, context: any, codeFormatt
         return new handlebarInstance.SafeString(JSON.stringify(value));
     });
 
+
     handlebarInstance.registerHelper('json-string', function (value) {
         return new handlebarInstance.SafeString(JSON.stringify(JSON.stringify(value)));
     });
@@ -144,6 +145,13 @@ export function create(contextOptions: any, data: any, context: any, codeFormatt
 
     handlebarInstance.registerHelper('toJSON', (value: any) => {
         return JSON.stringify(value, null, 4);
+    });
+
+    handlebarInstance.registerHelper('escaped', function (this: any, options:HelperOptions) {
+        const raw = options.fn(this);
+        return new handlebarInstance.SafeString(
+            Handlebars.escapeExpression(raw)
+        );
     });
 
     handlebarInstance.registerHelper('when', function (this: any, type, options) {
@@ -674,20 +682,21 @@ export function create(contextOptions: any, data: any, context: any, codeFormatt
     });
 
     // Standardize the AI instruction.
-    handlebarInstance.registerHelper('ai-comment', function (this: string, options: HelperOptions) {
+    handlebarInstance.registerHelper('ai-comment', function (this: any, options: HelperOptions) {
         if (contextOptions && OPTION_CONTEXT_AI in contextOptions) {
-            if (this.trim().includes('\n')) {
-                return options.fn(`/* STORM-AI: ${this.trim()} */`);
+            const body = options.fn(this).trim();
+            if (body.includes('\n')) {
+                return SafeString(`/* STORM-AI: ${body} */\n`);
             }
-            return options.fn(`// STORM-AI: ${this.trim()}`);
+            return SafeString(`// STORM-AI: ${body}\n`);
         }
-        return options.inverse('');
+        return options.inverse(this);
     });
 
     // Output the purpose of a file to the AI.
     handlebarInstance.registerHelper('ai-type', function (type: AIFileTypes) {
         if (contextOptions && OPTION_CONTEXT_AI in contextOptions) {
-            return `//AI-TYPE:${type.trim()}`;
+            return SafeString(`//AI-TYPE:${type.trim()}\n`);
         }
         return '';
     });
