@@ -35,7 +35,7 @@ import {
     typeHasReference,
     ucFirst,
 } from '@kapeta/kaplang-core';
-import { AIFileTypes, OPTION_CONTEXT_AI } from './types';
+import {AIFileTypes, OPTION_CONTEXT_AI} from './types';
 
 Handlebars.noConflict(); //Remove from global space
 
@@ -534,12 +534,14 @@ export function create(contextOptions: any, data: any, context: any, codeFormatt
                 .filter((entity) => entity.type !== DSLEntityType.METHOD)
                 .map((entity) => {
                     if (entity.type === DSLEntityType.CONTROLLER) {
-                        const namespace = entity.namespace ?? baseControllerName;
+                        const entityNamespace = entity.namespace ?? baseControllerName;
 
                         return {
                             ...entity,
-                            namespace,
+                            namespace: entityNamespace,
                         };
+                    } else if (entity.type === DSLEntityType.MODEL) {
+                        return {...entity, metadataName: namespace,};
                     }
                     return entity;
                 });
@@ -614,13 +616,12 @@ export function create(contextOptions: any, data: any, context: any, codeFormatt
         );
     });
 
-    handlebarInstance.registerHelper('kaplang-models', function (source: SourceCode, options: HelperOptions) {
-        options.data.root.metadataName = data.metadata.name;
+    handlebarInstance.registerHelper('kaplang-models', function (source: SourceCode, metadataName: any, options: HelperOptions) {
         return parseKaplang(source,
             {
                 ...MODEL_CONFIGURATION,
             },
-            options.hash.namespace ?? null,
+            metadataName ?? null,
             options,
         );
     });
