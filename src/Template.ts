@@ -3,15 +3,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-import Handlebars from 'handlebars';
+import Handlebars, {HelperOptions} from 'handlebars';
 import _ from 'lodash';
-import { HelperOptions } from 'handlebars';
-import { CodeFormatter, TypeLike } from './CodeFormatter';
-import { BlockDefinitionSpec, Entity, Kind, Resource, SourceCode } from '@kapeta/schemas';
-import { normalizeKapetaUri, parseKapetaUri } from '@kapeta/nodejs-utils';
+import {CodeFormatter, TypeLike} from './CodeFormatter';
+import {BlockDefinitionSpec, Entity, Kind, Resource, SourceCode} from '@kapeta/schemas';
+import {normalizeKapetaUri, parseKapetaUri} from '@kapeta/nodejs-utils';
 import {
     CONFIG_CONFIGURATION,
-    CONFIG_FIELD_ANNOTATIONS,
     DATATYPE_CONFIGURATION,
     DataTypeReader,
     DSLController,
@@ -28,6 +26,7 @@ import {
     EnumTypeReader,
     isVoid,
     METHOD_CONFIGURATION,
+    MODEL_CONFIGURATION,
     RESTControllerReader,
     RESTMethodReader,
     TYPE_INSTANCE,
@@ -612,6 +611,17 @@ export function create(contextOptions: any, data: any, context: any, codeFormatt
             },
             options.hash.namespace ?? null,
             options
+        );
+    });
+
+    handlebarInstance.registerHelper('kaplang-models', function (source: SourceCode, options: HelperOptions) {
+        options.data.root.metadataName = data.metadata.name;
+        return parseKaplang(source,
+            {
+                ...MODEL_CONFIGURATION,
+            },
+            options.hash.namespace ?? null,
+            options,
         );
     });
 
