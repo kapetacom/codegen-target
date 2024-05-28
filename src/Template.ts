@@ -3,15 +3,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-import Handlebars from 'handlebars';
+import Handlebars, {HelperOptions} from 'handlebars';
 import _ from 'lodash';
-import { HelperOptions } from 'handlebars';
-import { CodeFormatter, TypeLike } from './CodeFormatter';
-import { BlockDefinitionSpec, Entity, Kind, Resource, SourceCode } from '@kapeta/schemas';
-import { normalizeKapetaUri, parseKapetaUri } from '@kapeta/nodejs-utils';
+import {CodeFormatter, TypeLike} from './CodeFormatter';
+import {BlockDefinitionSpec, Entity, Kind, Resource, SourceCode} from '@kapeta/schemas';
+import {normalizeKapetaUri, parseKapetaUri} from '@kapeta/nodejs-utils';
 import {
     CONFIG_CONFIGURATION,
-    CONFIG_FIELD_ANNOTATIONS,
     DATATYPE_CONFIGURATION,
     DataTypeReader,
     DSLController,
@@ -28,6 +26,7 @@ import {
     EnumTypeReader,
     isVoid,
     METHOD_CONFIGURATION,
+    MODEL_CONFIGURATION,
     RESTControllerReader,
     RESTMethodReader,
     TYPE_INSTANCE,
@@ -36,7 +35,7 @@ import {
     typeHasReference,
     ucFirst,
 } from '@kapeta/kaplang-core';
-import { AIFileTypes, OPTION_CONTEXT_AI } from './types';
+import {AIFileTypes, OPTION_CONTEXT_AI} from './types';
 
 Handlebars.noConflict(); //Remove from global space
 
@@ -535,12 +534,14 @@ export function create(contextOptions: any, data: any, context: any, codeFormatt
                 .filter((entity) => entity.type !== DSLEntityType.METHOD)
                 .map((entity) => {
                     if (entity.type === DSLEntityType.CONTROLLER) {
-                        const namespace = entity.namespace ?? baseControllerName;
+                        const entityNamespace = entity.namespace ?? baseControllerName;
 
                         return {
                             ...entity,
-                            namespace,
+                            namespace: entityNamespace,
                         };
+                    } else if (entity.type === DSLEntityType.MODEL) {
+                        return {...entity, metadataName: namespace,};
                     }
                     return entity;
                 });
@@ -612,6 +613,16 @@ export function create(contextOptions: any, data: any, context: any, codeFormatt
             },
             options.hash.namespace ?? null,
             options
+        );
+    });
+
+    handlebarInstance.registerHelper('kaplang-models', function (source: SourceCode, metadataName: any, options: HelperOptions) {
+        return parseKaplang(source,
+            {
+                ...MODEL_CONFIGURATION,
+            },
+            metadataName ?? null,
+            options,
         );
     });
 
