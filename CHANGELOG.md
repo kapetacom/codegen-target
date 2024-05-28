@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/kapetacom/codegen-target/compare/v1.8.1...v1.8.2) (2024-05-28)
+
+
+### Bug Fixes
+
+* bump kaplang version ([f896ae1](https://github.com/kapetacom/codegen-target/commit/f896ae178d23d57ef782525968e378f3b1b79297))
+
 ## [1.8.1](https://github.com/kapetacom/codegen-target/compare/v1.8.0...v1.8.1) (2024-05-27)
 
 
