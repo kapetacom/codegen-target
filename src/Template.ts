@@ -153,6 +153,10 @@ export function create(contextOptions: any, data: any, context: any, codeFormatt
         );
     });
 
+    handlebarInstance.registerHelper('raw', function (this: any, options:HelperOptions) {
+        return options.fn(this);
+    });
+
     handlebarInstance.registerHelper('when', function (this: any, type, options) {
         const inner = options.fn(this);
         const [whenTrue, whenFalse] = inner.split(/\|\|/);
