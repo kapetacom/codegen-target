@@ -89,8 +89,16 @@ export function create(contextOptions: any, data: any, context: any, codeFormatt
         return new handlebarInstance.SafeString(typename?.toLowerCase());
     });
 
+    handlebarInstance.registerHelper('lowerFirst', function (typename) {
+        return new handlebarInstance.SafeString(_.lowerFirst(typename));
+    });
+
     handlebarInstance.registerHelper('uppercase', function (typename) {
         return new handlebarInstance.SafeString(typename?.toUpperCase());
+    });
+
+    handlebarInstance.registerHelper('upperFirst', function (typename) {
+        return new handlebarInstance.SafeString(_.upperFirst(typename));
     });
 
     handlebarInstance.registerHelper('default', function (value, defaultValue) {
