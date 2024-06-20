@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/kapetacom/codegen-target/compare/v1.8.2...v1.8.3) (2024-06-20)
+
+
+### Bug Fixes
+
+* add raw helper to fix {{{{raw}}}} blocks ([#28](https://github.com/kapetacom/codegen-target/issues/28)) ([54d40f4](https://github.com/kapetacom/codegen-target/commit/54d40f4aaa4285ca329d23b347795e1fd866815f))
+
 ## [1.8.2](https://github.com/kapetacom/codegen-target/compare/v1.8.1...v1.8.2) (2024-05-28)
 
 
